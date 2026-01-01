@@ -1,0 +1,250 @@
+/* Dark Theme Complaint Status Page */
+.status-wrapper {
+  min-height: 100vh;
+  background: #0f0f23;
+  padding: 30px 20px;
+  color: #e2e8f0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.status-title {
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #f8fafc;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.no-complaints {
+  max-width: 500px;
+  margin: 100px auto;
+  text-align: center;
+  padding: 50px 30px;
+  background: #1e293b;
+  border-radius: 16px;
+  border: 1px solid #334155;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.no-complaints p {
+  font-size: 1.1rem;
+  margin-bottom: 25px;
+  color: #94a3b8;
+}
+
+.no-complaints button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.no-complaints button:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.complaints-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.complaint-card {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #334155;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.complaint-card:hover {
+  transform: translateY(-2px);
+  border-color: #475569;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.complaint-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.complaint-header h3 {
+  margin: 0;
+  color: #f1f5f9;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.status-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.status-badge, .priority-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.complaint-content {
+  margin-bottom: 20px;
+}
+
+.description {
+  background: #0f172a;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+  margin-bottom: 16px;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+.custom-category, .location {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin: 10px 0;
+  padding: 8px 12px;
+  background: #0f172a;
+  border-radius: 6px;
+  border-left: 3px solid #64748b;
+}
+
+.audio-indicator, .media-indicator {
+  display: inline-block;
+  background: #1e40af;
+  color: #dbeafe;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  margin: 4px 4px 4px 0;
+  font-weight: 500;
+}
+
+.complaint-footer {
+  border-top: 1px solid #334155;
+  padding-top: 16px;
+}
+
+.timestamps {
+  margin-bottom: 16px;
+}
+
+.submitted-time, .analyzed-time {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 4px 0;
+}
+
+.ai-insight {
+  background: #0c4a6e;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #0ea5e9;
+}
+
+.ai-insight strong {
+  color: #38bdf8;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.ai-insight p {
+  margin: 0;
+  line-height: 1.5;
+  color: #e0f2fe;
+}
+
+.media-analysis {
+  background: #4c1d95;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #8b5cf6;
+  margin-bottom: 16px;
+}
+
+.media-analysis strong {
+  color: #c4b5fd;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.media-analysis p {
+  margin: 0;
+  line-height: 1.5;
+  color: #ede9fe;
+}
+
+/* Status Colors */
+.status-badge {
+  color: white;
+}
+
+/* Priority Colors */
+.priority-badge {
+  color: white;
+}
+
+/* Loading state */
+.status-wrapper h2 {
+  text-align: center;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .status-wrapper {
+    padding: 20px 15px;
+  }
+  
+  .status-title {
+    font-size: 2rem;
+  }
+  
+  .complaints-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .complaint-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .status-badges {
+    align-self: flex-start;
+  }
+}
+
+/* Smooth animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.complaint-card {
+  animation: fadeIn 0.4s ease-out;
+}
