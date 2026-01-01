@@ -1,0 +1,39 @@
+.workflow-stepper {
+  background: rgba(5, 5, 8, 0.8) !important;
+  border: 1px solid rgba(175, 153, 246, 0.3) !important;
+  border-radius: 20px !important;
+  backdrop-filter: blur(10px) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+.workflow-steps {
+  padding: 2rem !important;
+}
+
+.workflow-content {
+  padding: 1rem 2rem !important;
+  min-height: 300px !important;
+}
+
+.workflow-footer {
+  padding: 1rem 2rem 2rem !important;
+}
+
+@media (max-width: 768px) {
+  .workflow-stepper {
+    max-width: 95% !important;
+  }
+
+  .workflow-steps {
+    padding: 1rem !important;
+    overflow-x: auto !important;
+  }
+
+  .workflow-content {
+    padding: 1rem !important;
+  }
+
+  .workflow-footer {
+    padding: 1rem !important;
+  }
+}

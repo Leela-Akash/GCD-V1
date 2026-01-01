@@ -1,0 +1,52 @@
+.text-type {
+  display: inline-block;
+  white-space: pre-wrap;
+}
+
+/* Cursor */
+.text-type__cursor {
+  margin-left: 0.25rem;
+  display: inline-block;
+  opacity: 1;
+}
+
+.text-type__cursor--hidden {
+  display: none;
+}
+
+/* ================= OPTIONAL HERO STYLES ================= */
+
+/* Use this via className="home-typing" */
+.home-typing {
+  font-size: clamp(2.5rem, 4vw, 4rem);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+
+  /* Soft glow */
+  text-shadow:
+    0 0 10px rgba(175, 153, 246, 0.4),
+    0 0 25px rgba(175, 153, 246, 0.35),
+    0 0 45px rgba(175, 153, 246, 0.25);
+}
+
+/* Optional animated glow (enable if you want) */
+@keyframes glowPulse {
+  from {
+    text-shadow:
+      0 0 10px rgba(175, 153, 246, 0.3),
+      0 0 25px rgba(175, 153, 246, 0.25);
+  }
+  to {
+    text-shadow:
+      0 0 20px rgba(175, 153, 246, 0.6),
+      0 0 45px rgba(175, 153, 246, 0.45);
+  }
+}
+
+/* Uncomment to enable animated glow */
+/*
+.home-typing {
+  animation: glowPulse 2.5s ease-in-out infinite alternate;
+}
+*/

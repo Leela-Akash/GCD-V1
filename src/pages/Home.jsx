@@ -1,0 +1,659 @@
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { GridScan } from "../components/effects/GridScan"; // ✅ FIXED IMPORT
+import TextType from "../components/effects/TextType";
+import Footer from "../components/common/Footer";
+import SpotlightCard from "../components/home/SpotlightCard";
+import TimelineItem from "../components/home/TimelineItem";
+import StatCard from "../components/home/StatCard";
+import WhyCard from "../components/home/WhyCard";
+import ProjectWorkflowStepper from "../components/home/ProjectWorkflowStepper";
+import CircularGallery from "../components/effects/CircularGallery";
+import { useAuth } from '../context/AuthContext';
+
+const animateCounter = (element, target) => {
+  let current = 0;
+  const increment = target / 100;
+  const timer = setInterval(() => {
+    current += increment;
+    if (current >= target) {
+      current = target;
+      clearInterval(timer);
+    }
+    element.textContent = Math.floor(current);
+  }, 20);
+};
+
+const styles = `
+.animate {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+.card {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+@media (max-width: 768px) {
+  .timeline {
+    flex-direction: column !important;
+  }
+  .timeline-item::before {
+    display: none !important;
+  }
+  .timeline-item::after {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 100%;
+    background: #AF99F6;
+  }
+  .timeline-item:last-child::after {
+    display: none;
+  }
+}
+`;
+
+const Home = () => {
+  const [animatedStats, setAnimatedStats] = useState(false);
+  const statsRef = useRef(null);
+  const featureRef = useRef(null);
+  const howItWorksRef = useRef(null);
+  const whyRef = useRef(null);
+  const ctaRef = useRef(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleRaiseComplaint = () => {
+    if (user) {
+      navigate('/citizen/raise-complaint');
+    } else {
+      navigate('/citizen/login');
+    }
+  };
+
+  const handleTrackComplaint = () => {
+    if (user) {
+      navigate('/citizen/complaint-status');
+    } else {
+      navigate('/citizen/login');
+    }
+  };
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate');
+            if (entry.target === statsRef.current && !animatedStats) {
+              setAnimatedStats(true);
+              const counters = entry.target.querySelectorAll('.counter');
+              counters.forEach((counter, index) => {
+                const targets = [10000, 2500, 48, 50];
+                animateCounter(counter, targets[index]);
+              });
+            }
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (featureRef.current) observer.observe(featureRef.current);
+    if (howItWorksRef.current) observer.observe(howItWorksRef.current);
+    if (statsRef.current) observer.observe(statsRef.current);
+    if (whyRef.current) observer.observe(whyRef.current);
+    if (ctaRef.current) observer.observe(ctaRef.current);
+
+    return () => observer.disconnect();
+  }, [animatedStats]);
+
+  return (
+    <div style={{ background: "#050508", color: "#fff" }}>
+      <style>{styles}</style>
+
+      {/* ================= HERO SECTION ================= */}
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "100vh",
+          background: "#050508",
+          overflow: "hidden"
+        }}
+      >
+        {/* 🟣 GRIDSCAN BACKGROUND */}
+        <GridScan
+          scanColor="#AF99F6"
+          linesColor="#392e4e"
+          scanOpacity={0.35}
+          gridScale={0.12}
+          lineThickness={1}
+          lineJitter={0.08}
+          scanGlow={0.6}
+          scanSoftness={2}
+          noiseIntensity={0.015}
+          bloomIntensity={0.2}
+          scanDuration={2.5}
+          scanDelay={2}
+          scanDirection="pingpong"
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 0
+          }}
+        />
+
+        {/* 📝 CENTER TEXT (Typing Effect) */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 2,
+            textAlign: "center",
+            pointerEvents: "none"
+          }}
+        >
+          <div>
+            <TextType
+              text={[
+                "Google CivicSense AI",
+                "AI-Powered Civic Complaints",
+                "Smart Governance Platform"
+              ]}
+              typingSpeed={70}
+              deletingSpeed={35}
+              pauseDuration={1500}
+              showCursor={true}
+              cursorCharacter="|"
+              className="home-typing"
+            />
+          </div>
+          <p
+            style={{
+              marginTop: "20px",
+              fontSize: "1.2rem",
+              color: "#ccc",
+              maxWidth: "600px",
+              lineHeight: "1.5"
+            }}
+          >
+            AI-powered civic complaint platform for smart governance
+          </p>
+          <div
+            style={{
+              marginTop: "40px",
+              display: "flex",
+              gap: "20px",
+              pointerEvents: "auto"
+            }}
+          >
+            <button
+              onClick={handleRaiseComplaint}
+              style={{
+                padding: "12px 24px",
+                background: "linear-gradient(135deg, #4285F4, #34A853)",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "1rem",
+                fontWeight: "bold",
+                cursor: "pointer",
+                transition: "transform 0.2s",
+                boxShadow: "0 4px 15px rgba(66, 133, 244, 0.3)"
+              }}
+              onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
+              onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
+            >
+              Raise a Complaint
+            </button>
+            <button
+              onClick={handleTrackComplaint}
+              style={{
+                padding: "12px 24px",
+                background: "transparent",
+                color: "#4285F4",
+                border: "2px solid #4285F4",
+                borderRadius: "8px",
+                fontSize: "1rem",
+                fontWeight: "bold",
+                cursor: "pointer",
+                transition: "all 0.2s",
+                boxShadow: "0 0 10px rgba(66, 133, 244, 0.2)"
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = "#4285F4";
+                e.target.style.color = "#fff";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "transparent";
+                e.target.style.color = "#4285F4";
+              }}
+            >
+              Track Complaint
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ================= FEATURE CARDS SECTION ================= */}
+      <section
+        ref={featureRef}
+        style={{
+          position: "relative",
+          padding: "120px 12%",
+          background: "#050508",
+          overflow: "hidden"
+        }}
+      >
+        <div style={{ position: "relative", zIndex: 2 }}>
+          <h2
+            style={{
+              fontSize: "2.5rem",
+              fontWeight: "bold",
+              textAlign: "center",
+              marginBottom: "60px",
+              background: "linear-gradient(135deg, #4285F4, #AF99F6)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text"
+            }}
+          >
+            Key Features
+          </h2>
+
+
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "40px"
+            }}
+          >
+            <SpotlightCard
+              icon="🎙️"
+              title="Voice-based complaint registration"
+              description="for easy and inclusive access"
+              colorIndex={0}
+            />
+            <SpotlightCard
+              icon="🌍"
+              title="Multi-language support"
+              description="for all regional users"
+              colorIndex={1}
+            />
+            <SpotlightCard
+              icon="🤖"
+              title="AI-driven priority detection"
+              description="for urgent issues"
+              colorIndex={2}
+            />
+            <SpotlightCard
+              icon="🏛️"
+              title="Automatic department routing"
+              description="of complaints"
+              colorIndex={3}
+            />
+            <SpotlightCard
+              icon="📊"
+              title="Real-time complaint tracking"
+              description="for citizens"
+              colorIndex={4}
+            />
+            <SpotlightCard
+              icon="🔐"
+              title="Secure Google Sign-In authentication"
+              description=""
+              colorIndex={5}
+            />
+            <SpotlightCard
+              icon="🧑‍🤝‍🧑"
+              title="Citizen-first, accessible design"
+              description=""
+              colorIndex={6}
+            />
+            <SpotlightCard
+              icon="⚡"
+              title="Faster resolution & improved accountability"
+              description=""
+              colorIndex={7}
+            />
+            <SpotlightCard
+              icon="🌱"
+              title="Scalable smart governance platform"
+              description=""
+              colorIndex={8}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ================= HOW IT WORKS SECTION ================= */}
+      <section
+        ref={howItWorksRef}
+        style={{
+          position: "relative",
+          padding: "120px 12%",
+          background: "#050508",
+          overflow: "hidden"
+        }}
+      >
+        <GridScan
+          scanColor="#AF99F6"
+          linesColor="#392e4e"
+          scanOpacity={0.25}
+          gridScale={0.14}
+          lineThickness={1}
+          scanGlow={0.4}
+          scanSoftness={2.2}
+          noiseIntensity={0.01}
+          scanDuration={3}
+          scanDelay={3}
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 0
+          }}
+        />
+
+        <div style={{ position: "relative", zIndex: 2 }}>
+          <h2
+            style={{
+              fontSize: "2.5rem",
+              fontWeight: "bold",
+              textAlign: "center",
+              marginBottom: "60px",
+              background: "linear-gradient(135deg, #4285F4, #AF99F6)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text"
+            }}
+          >
+            How It Works
+          </h2>
+
+          {/* Interactive Stepper */}
+          <ProjectWorkflowStepper />
+
+          {/* Legacy Timeline (hidden but kept for reference) */}
+          <div
+            className="timeline"
+            style={{
+              display: "none",
+              justifyContent: "space-between",
+              alignItems: "center",
+              position: "relative",
+              maxWidth: "1000px",
+              margin: "0 auto"
+            }}
+          >
+            <TimelineItem
+              step="Record your complaint using voice in any language"
+              index={0}
+            />
+            <TimelineItem
+              step="AI analyzes and prioritizes the issue automatically"
+              index={1}
+            />
+            <TimelineItem
+              step="Municipal authorities receive and process the complaint"
+              index={2}
+            />
+            <TimelineItem
+              step="Track resolution status and receive updates in real-time"
+              index={3}
+            />
+            <TimelineItem
+              step="Complaint resolved with transparent communication"
+              index={4}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ================= IMPACT/STATS SECTION ================= */}
+      <section
+        ref={statsRef}
+        style={{
+          position: "relative",
+          padding: "120px 12%",
+          background: "#050508",
+          overflow: "hidden"
+        }}
+      >
+        <GridScan
+          scanColor="#AF99F6"
+          linesColor="#392e4e"
+          scanOpacity={0.25}
+          gridScale={0.14}
+          lineThickness={1}
+          scanGlow={0.4}
+          scanSoftness={2.2}
+          noiseIntensity={0.01}
+          scanDuration={3}
+          scanDelay={3}
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 0
+          }}
+        />
+
+        <div style={{ position: "relative", zIndex: 2 }}>
+          <h2
+            style={{
+              fontSize: "2.5rem",
+              fontWeight: "bold",
+              textAlign: "center",
+              marginBottom: "60px",
+              background: "linear-gradient(135deg, #4285F4, #AF99F6)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text"
+            }}
+          >
+            Our Impact
+          </h2>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+              gap: "40px"
+            }}
+          >
+            <StatCard
+              label="Total Complaints"
+              value="10,000+"
+              suffix="+"
+            />
+            <StatCard
+              label="High Priority Cases"
+              value="2,500+"
+              suffix="+"
+            />
+            <StatCard
+              label="Average Resolution Time"
+              value="48"
+              suffix=" hours"
+            />
+            <StatCard
+              label="Cities Covered"
+              value="50+"
+              suffix="+"
+            />
+          </div>
+
+          {/* Circular Gallery for Impact Categories */}
+          <div style={{ marginTop: "80px", height: "600px" }}>
+            <CircularGallery
+              bend={2}
+              textColor="#ffffff"
+              borderRadius={0.05}
+              font="bold 32px Figtree"
+              scrollSpeed={1}
+              scrollEase={0.08}
+              autoRotate={true}
+              autoRotateSpeed={0.3}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ================= WHY CIVICSENSE AI SECTION ================= */}
+      <section
+        ref={whyRef}
+        style={{
+          position: "relative",
+          padding: "120px 12%",
+          background: "#050508",
+          overflow: "hidden"
+        }}
+      >
+        <GridScan
+          scanColor="#AF99F6"
+          linesColor="#392e4e"
+          scanOpacity={0.25}
+          gridScale={0.14}
+          lineThickness={1}
+          scanGlow={0.4}
+          scanSoftness={2.2}
+          noiseIntensity={0.01}
+          scanDuration={3}
+          scanDelay={3}
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 0
+          }}
+        />
+
+        <div style={{ position: "relative", zIndex: 2 }}>
+          <h2
+            style={{
+              fontSize: "2.5rem",
+              fontWeight: "bold",
+              textAlign: "center",
+              marginBottom: "60px",
+              background: "linear-gradient(135deg, #4285F4, #AF99F6)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text"
+            }}
+          >
+            Why CivicSense AI?
+          </h2>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+              gap: "40px"
+            }}
+          >
+            <WhyCard
+              title="Powered by Google AI"
+              description="Advanced Gemini AI technology for intelligent complaint analysis, priority detection, and multi-language support ensuring accurate processing."
+            />
+            <WhyCard
+              title="Voice-First & Inclusive"
+              description="Speak in any language - our AI transcribes, translates, and processes complaints making civic participation accessible to everyone."
+            />
+            <WhyCard
+              title="Smart & Transparent"
+              description="AI-driven priority classification with real-time tracking ensures urgent issues get immediate attention with full transparency."
+            />
+            <WhyCard
+              title="Real Civic Impact"
+              description="Connecting citizens directly with municipal authorities through intelligent routing for faster resolutions and accountable governance."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ================= CALL TO ACTION SECTION ================= */}
+      <section
+        ref={ctaRef}
+        style={{
+          position: "relative",
+          padding: "120px 12%",
+          background: "#050508",
+          overflow: "hidden"
+        }}
+      >
+        <GridScan
+          scanColor="#AF99F6"
+          linesColor="#392e4e"
+          scanOpacity={0.25}
+          gridScale={0.14}
+          lineThickness={1}
+          scanGlow={0.4}
+          scanSoftness={2.2}
+          noiseIntensity={0.01}
+          scanDuration={3}
+          scanDelay={3}
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 0
+          }}
+        />
+
+        <div
+          className="card"
+          style={{
+            position: "relative",
+            zIndex: 2,
+            background: "rgba(255, 255, 255, 0.05)",
+            backdropFilter: "blur(10px)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            borderRadius: "16px",
+            padding: "60px",
+            textAlign: "center",
+            maxWidth: "800px",
+            margin: "0 auto",
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)"
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "2.5rem",
+              fontWeight: "bold",
+              marginBottom: "20px",
+              background: "linear-gradient(135deg, #4285F4, #AF99F6)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text"
+            }}
+          >
+            Join the CivicSense AI Revolution
+          </h2>
+          <p
+            style={{
+              fontSize: "1.2rem",
+              color: "#ccc",
+              marginBottom: "40px",
+              lineHeight: "1.6"
+            }}
+          >
+            Be part of a smarter governance ecosystem. Raise your voice, track progress, and make a difference.
+          </p>
+
+        </div>
+      </section>
+
+      {/* ================= FOOTER ================= */}
+      <Footer />
+
+    </div>
+  );
+};
+
+export default Home;

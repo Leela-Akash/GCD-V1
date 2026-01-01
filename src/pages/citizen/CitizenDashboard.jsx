@@ -32,7 +32,7 @@ const CitizenDashboard = () => {
           onMouseMove={(e) =>
             handleMouseMove(e, raiseRef, "rgba(175, 153, 246, 0.35)")
           }
-          onClick={() => navigate("/raise-complaint")}
+          onClick={() => navigate("/citizen/raise-complaint")}
         >
           <h2>Raise Complaint</h2>
           <p>Submit complaints using text, voice, or image.</p>
@@ -45,7 +45,7 @@ const CitizenDashboard = () => {
           onMouseMove={(e) =>
             handleMouseMove(e, statusRef, "rgba(0, 229, 255, 0.3)")
           }
-          onClick={() => navigate("/complaint-status")}
+          onClick={() => navigate("/citizen/complaint-status")}
         >
           <h2>Complaint Status</h2>
           <p>Track updates and AI-generated insights.</p>

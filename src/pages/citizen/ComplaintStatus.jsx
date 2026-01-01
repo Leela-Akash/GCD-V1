@@ -146,10 +146,17 @@ const ComplaintStatus = () => {
                   </div>
                 )}
                 
-                {complaint.status === "analyzed" && complaint.aiAnalysis && (
+                {complaint.aiAnalysis && (
                   <div className="ai-insight">
                     <strong>💡 AI Insight:</strong>
                     <p>{complaint.aiAnalysis}</p>
+                  </div>
+                )}
+                
+                {!complaint.aiAnalysis && complaint.status === "submitted" && (
+                  <div className="ai-insight">
+                    <strong>💡 AI Insight:</strong>
+                    <p>Analysis pending...</p>
                   </div>
                 )}
               </div>

@@ -1,0 +1,65 @@
+.admin-login-page {
+  min-height: 100vh;
+  background: #050508;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 🔥 Bigger electric wrapper */
+.admin-login-border {
+  border-radius: 20px;
+}
+
+/* 🔥 BIGGER LOGIN BOX */
+.admin-login-card {
+  width: 420px;              /* ⬅️ increased from 340px */
+  padding: 44px 40px;        /* ⬅️ more inner space */
+  background: rgba(10, 10, 20, 0.9);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  text-align: center;
+}
+
+/* 🔥 Bigger heading */
+.admin-title {
+  margin-bottom: 32px;
+  font-size: 2rem;           /* ⬅️ increased */
+  color: #ffffff;
+}
+
+/* 🔥 Bigger inputs */
+.admin-login-card input {
+  width: 100%;
+  padding: 16px 18px;        /* ⬅️ increased */
+  margin-bottom: 20px;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  background: #111120;
+  color: #fff;
+  font-size: 1.05rem;
+}
+
+.admin-login-card input::placeholder {
+  color: #aaa;
+}
+
+/* 🔥 Bigger button */
+.admin-login-card button {
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #af99f6, #6f5cff);
+  color: #000;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-login-card button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(175, 153, 246, 0.45);
+}

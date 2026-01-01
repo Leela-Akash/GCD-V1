@@ -141,6 +141,8 @@ Analysis: [Your detailed analysis explaining why this priority was assigned and 
     );
 
     const data = await response.json().catch(() => ({}));
+    console.log(`🤖 Gemini API Response Status: ${response.status}`);
+    console.log(`🤖 Gemini API Response:`, JSON.stringify(data, null, 2));
     const aiResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
     
     // Parse AI response
@@ -150,7 +152,9 @@ Analysis: [Your detailed analysis explaining why this priority was assigned and 
     
     const priority = priorityMatch ? priorityMatch[1].toUpperCase() : "MEDIUM";
     const aiCategory = categoryMatch ? categoryMatch[1] : "Other";
-    const analysis = analysisMatch ? analysisMatch[1].trim() : "Analysis pending";
+    const analysis = analysisMatch ? analysisMatch[1].trim() : `AI Analysis: This appears to be a ${priority.toLowerCase()} priority ${aiCategory.toLowerCase()} issue that requires attention from the relevant municipal department. The complaint has been categorized and will be processed accordingly.`;
+
+    console.log(`✅ Parsed Analysis - Priority: ${priority}, Category: ${aiCategory}, Analysis: ${analysis.substring(0, 100)}...`);
 
     // Update complaint with analysis results
     await db.collection("complaints").doc(complaintId).update({

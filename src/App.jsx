@@ -1,63 +1,119 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation
+} from "react-router-dom";
+
 import CardNav from "./components/common/CardNav";
-import viteLogo from "/vite.svg";
-import CitizenDashboard from "./pages/citizen/CitizenDashboard";
-import RaiseComplaint from "./pages/citizen/RaiseComplaint";
-import ComplaintStatus from "./pages/citizen/ComplaintStatus";
-import AdminComplaints from "./pages/admin/AdminComplaints";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
+// Public pages
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 
-// dummy pages
-const Home = () => <h1 style={{ color: "#fff" }}>Home</h1>;
-const About = () => <h1 style={{ color: "#fff" }}>About</h1>;
-const Services = () => <h1 style={{ color: "#fff" }}>Services</h1>;
-const Contact = () => <h1 style={{ color: "#fff" }}>Contact</h1>;
+// Admin
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminLayout from "./pages/admin/AdminLayout";
+
+// Citizen
+import CitizenLogin from "./pages/citizen/CitizenLogin";
+import CitizenRegister from "./pages/citizen/CitizenRegister";
+import CitizenLayout from "./pages/citizen/CitizenLayout";
+
+// Assets
+import googleLogo from "./assets/icons/google.jpeg";
 
 const Layout = () => {
   const location = useLocation();
+  const { user, logout } = useAuth();
+
+  // Hide public navbar on admin & citizen internal pages
+  const isAdminRoute = location.pathname.startsWith("/admin");
+  const isCitizenInternalRoute =
+    location.pathname.startsWith("/citizen") &&
+    !location.pathname.includes("/login") &&
+    !location.pathname.includes("/register");
+
+  const getNavItems = () => {
+    const baseItems = [
+      { label: "Home", href: "/" },
+      { label: "About", href: "/about" },
+      { label: "Contact", href: "/contact" }
+    ];
+
+    if (user) {
+      return [
+        ...baseItems,
+        { label: "Dashboard", href: "/citizen/dashboard" },
+        {
+          label: `${user.displayName || user.email} ▼`,
+          subitems: [
+            { label: "Profile", href: "/citizen/profile" },
+            { label: "My Complaints", href: "/citizen/complaint-status" },
+            { label: "Logout", href: "#", onClick: logout }
+          ]
+        }
+      ];
+    }
+
+    return [
+      ...baseItems,
+      { label: "Register", href: "/citizen/register" },
+      {
+        label: "Login",
+        subitems: [
+          { label: "Admin Login", href: "/admin/login" },
+          { label: "Citizen Login", href: "/citizen/login" }
+        ]
+      }
+    ];
+  };
 
   return (
     <>
-      <CardNav
-  logo={viteLogo}
-  logoAlt="Vite Logo"
-  items={[
-    { label: "Home", href: "/" },
-    { label: "About", href: "/about" },
-    { label: "Services", href: "/services" },
-    { label: "Contact", href: "/contact" }
-  ]}
-  activeHref={location.pathname}
-  className="custom-nav"
-  ease="power2.easeOut"
-  baseColor="#af99f6"        // 🟣 NAVBAR (VIOLET)
-  pillColor="#ffffff"        // ⬛ PILLS
-  hoveredPillTextColor="#000000"
-  pillTextColor="#000000"   // ⚪ TEXT
-/>
+      {/* 🌐 PUBLIC NAVBAR */}
+      {!isAdminRoute && !isCitizenInternalRoute && (
+        <CardNav
+          logo={googleLogo}
+          logoAlt="Google Logo"
+          items={getNavItems()}
+          activeHref={location.pathname}
+          baseColor="#af99f6"
+          pillColor="#ffffff"
+          pillTextColor="#000000"
+          hoveredPillTextColor="#000000"
+        />
+      )}
 
-
+      {/* 🧭 ROUTES */}
       <Routes>
+        {/* PUBLIC */}
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/services" element={<Services />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/citizen-dashboard" element={<CitizenDashboard />} />
-        <Route path="/raise-complaint" element={<RaiseComplaint />} />
-        <Route path="/complaint-status" element={<ComplaintStatus />} />
-        <Route path="/admin-complaints" element={<AdminComplaints />} />
+
+        {/* ADMIN */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/*" element={<AdminLayout />} />
+
+        {/* CITIZEN */}
+        <Route path="/citizen/login" element={<CitizenLogin />} />
+        <Route path="/citizen/register" element={<CitizenRegister />} />
+        <Route path="/citizen/*" element={<CitizenLayout />} />
       </Routes>
     </>
   );
 };
 
-function App() {
+export default function App() {
   return (
-    <Router>
-      <Layout />
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Layout />
+      </Router>
+    </AuthProvider>
   );
 }
-
-export default App;

@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
-import "./RaiseComplaintNew.css";
+import "./RaiseComplaint.css";
 import { submitComplaint, uploadComplaintMedia, analyzeComplaintMedia } from "../../services/geminiService";
 import { uploadMedia } from "../../services/storageService";
+import { useAuth } from "../../context/AuthContext";
 
 
 const RaiseComplaint = () => {
+  const { user } = useAuth();
   const [category, setCategory] = useState("");
   const [customCategory, setCustomCategory] = useState("");
   const [description, setDescription] = useState("");
@@ -208,7 +210,7 @@ const RaiseComplaint = () => {
         category,
         customCategory,
         location,
-        userId: "user123"
+        userId: user?.uid || "anonymous"
       });
 
       // Upload media files and analyze them

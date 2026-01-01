@@ -1,0 +1,1 @@
+// This file is intentionally empty - authentication functions are in firebase.js
