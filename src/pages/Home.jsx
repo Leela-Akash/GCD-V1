@@ -509,74 +509,135 @@ const Home = () => {
       </section>
 
       {/* ================= WHY CIVICSENSE AI SECTION ================= */}
-      <section
-        ref={whyRef}
-        style={{
-          position: "relative",
-          padding: "120px 12%",
-          background: "#050508",
-          overflow: "hidden"
-        }}
-      >
-        <GridScan
-          scanColor="#AF99F6"
-          linesColor="#392e4e"
-          scanOpacity={0.25}
-          gridScale={0.14}
-          lineThickness={1}
-          scanGlow={0.4}
-          scanSoftness={2.2}
-          noiseIntensity={0.01}
-          scanDuration={3}
-          scanDelay={3}
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 0
-          }}
-        />
+<section
+  ref={whyRef}
+  style={{
+    position: "relative",
+    padding: "120px 12%",
+    background: "#050508",
+    overflow: "hidden"
+  }}
+>
+  {/* Grid background */}
+  <GridScan
+    scanColor="#AF99F6"
+    linesColor="#392e4e"
+    scanOpacity={0.12}
+    gridScale={0.18}
+    lineThickness={1}
+    scanGlow={0.2}
+    scanSoftness={2.2}
+    noiseIntensity={0.004}
+    scanDuration={4}
+    scanDelay={3}
+    style={{
+      position: "absolute",
+      inset: 0,
+      zIndex: 0
+    }}
+  />
 
-        <div style={{ position: "relative", zIndex: 2 }}>
-          <h2
-            style={{
-              fontSize: "2.5rem",
-              fontWeight: "bold",
-              textAlign: "center",
-              marginBottom: "60px",
-              background: "linear-gradient(135deg, #4285F4, #AF99F6)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text"
-            }}
-          >
-            Why CivicSense AI?
-          </h2>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-              gap: "40px"
-            }}
-          >
-            <WhyCard
-              title="Powered by Google AI"
-              description="Advanced Gemini AI technology for intelligent complaint analysis, priority detection, and multi-language support ensuring accurate processing."
-            />
-            <WhyCard
-              title="Voice-First & Inclusive"
-              description="Speak in any language - our AI transcribes, translates, and processes complaints making civic participation accessible to everyone."
-            />
-            <WhyCard
-              title="Smart & Transparent"
-              description="AI-driven priority classification with real-time tracking ensures urgent issues get immediate attention with full transparency."
-            />
-            <WhyCard
-              title="Real Civic Impact"
-              description="Connecting citizens directly with municipal authorities through intelligent routing for faster resolutions and accountable governance."
-            />
-          </div>
-        </div>
-      </section>
+  {/* Dark overlay to push grid back */}
+  <div
+    style={{
+      position: "absolute",
+      inset: 0,
+      background:
+        "linear-gradient(to bottom, rgba(5,5,8,0.92), rgba(5,5,8,0.75), rgba(5,5,8,0.92))",
+      zIndex: 1
+    }}
+  />
+
+  {/* CONTENT */}
+  <div
+    style={{
+      position: "relative",
+      zIndex: 2,
+      maxWidth: "1200px",
+      margin: "0 auto",
+      padding: "70px",
+      background: "rgba(20,18,35,0.65)",
+      backdropFilter: "blur(14px)",
+      borderRadius: "26px",
+      border: "1px solid rgba(175,153,246,0.25)",
+      boxShadow: "0 0 80px rgba(175,153,246,0.15)"
+    }}
+  >
+    {/* Heading */}
+    <h2
+      style={{
+        fontSize: "2.6rem",
+        fontWeight: "bold",
+        textAlign: "center",
+        marginBottom: "20px",
+        background: "linear-gradient(135deg, #4285F4, #AF99F6)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent"
+      }}
+    >
+      Why CivicSense AI?
+    </h2>
+
+    {/* Sub text */}
+    <p
+      style={{
+        maxWidth: "850px",
+        margin: "0 auto 70px",
+        textAlign: "center",
+        color: "#c3bedc",
+        fontSize: "1.05rem",
+        lineHeight: 1.7
+      }}
+    >
+      CivicSense AI modernizes civic complaint systems by making them
+      voice-enabled, multilingual, intelligent, and transparent — ensuring
+      every citizen can report issues easily and every authority can act faster.
+    </p>
+
+    {/* Cards */}
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+        gap: "40px"
+      }}
+    >
+      <WhyCard
+        title="🎙️ Voice-First Reporting"
+        description="Citizens can simply speak to register complaints. CivicSense AI converts voice into structured data, understands intent, and removes the need for typing."
+      />
+
+      <WhyCard
+        title="🌐 Multilingual Intelligence"
+        description="Supports regional languages, Hindi, English, and mixed speech. AI automatically detects, translates, and processes complaints without language barriers."
+      />
+
+      <WhyCard
+        title="📸 Photo-Based Evidence"
+        description="Users can upload photos of civic issues like potholes or garbage. AI analyzes images to validate complaints and accelerate resolution."
+      />
+
+      <WhyCard
+        title="🧠 AI-Powered Prioritization"
+        description="Advanced AI detects urgency, assigns priority levels, and routes complaints to the correct department so critical issues are addressed first."
+      />
+    </div>
+
+    {/* Footer line */}
+    <p
+      style={{
+        marginTop: "80px",
+        textAlign: "center",
+        color: "#a39dc2",
+        fontSize: "0.95rem"
+      }}
+    >
+      CivicSense AI bridges citizens and governments through intelligent,
+      inclusive, and accountable digital governance.
+    </p>
+  </div>
+</section>
+
 
       {/* ================= CALL TO ACTION SECTION ================= */}
       <section

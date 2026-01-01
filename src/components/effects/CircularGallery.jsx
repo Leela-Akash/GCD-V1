@@ -4,11 +4,12 @@ import { useEffect, useRef } from 'react';
 import './CircularGallery.css';
 
 // Use working placeholder images
-const keyImpactImg = 'https://picsum.photos/600/400?random=1';
-const trustImg = 'https://picsum.photos/600/400?random=2';
-const socialCivicImg = 'https://picsum.photos/600/400?random=3';
-const aiImg = 'https://picsum.photos/600/400?random=4';
-const visualRepImg = 'https://picsum.photos/600/400?random=5';
+import aiImg from '../../assets/ai.png';
+import trustImg from '../../assets/trust.png';
+import civicImg from '../../assets/civic.png';
+import metricsImg from '../../assets/metrics.png';
+import visualImg from '../../assets/visual.png';
+
 
 function debounce(func, wait) {
   let timeout;
@@ -347,11 +348,11 @@ class App {
   }
   createMedias(items, bend = 1, textColor, borderRadius, font) {
     const defaultItems = [
-      { image: keyImpactImg, text: 'Key Impact Metrics' },
+      { image: metricsImg, text: 'Key Impact Metrics' },
       { image: trustImg, text: 'Transparency & Trust Impact' },
-      { image: socialCivicImg, text: 'Social & Civic Impact' },
+      { image: civicImg, text: 'Social & Civic Impact' },
       { image: aiImg, text: 'AI Impact' },
-      { image: visualRepImg, text: 'Visual Representation Ideas' }
+      { image: visualImg, text: 'Visual Representation Ideas' }
     ];
     const galleryItems = items && items.length ? items : defaultItems;
     this.mediasImages = galleryItems.concat(galleryItems);

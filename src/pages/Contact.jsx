@@ -44,14 +44,14 @@ const Contact = () => {
       icon: '📞',
       title: 'Call Us',
       description: '24/7 support hotline',
-      contact: '+1 (555) 123-4567',
-      action: 'tel:+15551234567'
+      contact: '8885277944',
+      action: 'tel:8885277944'
     },
     {
       icon: '📍',
       title: 'Visit Us',
       description: 'Our headquarters',
-      contact: '123 Tech Street, Silicon Valley',
+      contact: 'Vaddeswaram,Vijayawada, Andhra Pradesh, India',
       action: 'https://maps.google.com'
     },
     {
