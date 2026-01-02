@@ -1,14 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GridScan } from "../components/effects/GridScan"; // ✅ FIXED IMPORT
 import TextType from "../components/effects/TextType";
 import Footer from "../components/common/Footer";
 import SpotlightCard from "../components/home/SpotlightCard";
 import TimelineItem from "../components/home/TimelineItem";
 import StatCard from "../components/home/StatCard";
 import WhyCard from "../components/home/WhyCard";
-import ProjectWorkflowStepper from "../components/home/ProjectWorkflowStepper";
-import CircularGallery from "../components/effects/CircularGallery";
 import { useAuth } from '../context/AuthContext';
 
 const animateCounter = (element, target) => {
@@ -126,27 +123,13 @@ const Home = () => {
           overflow: "hidden"
         }}
       >
-        {/* 🟣 GRIDSCAN BACKGROUND */}
-        <GridScan
-          scanColor="#AF99F6"
-          linesColor="#392e4e"
-          scanOpacity={0.35}
-          gridScale={0.12}
-          lineThickness={1}
-          lineJitter={0.08}
-          scanGlow={0.6}
-          scanSoftness={2}
-          noiseIntensity={0.015}
-          bloomIntensity={0.2}
-          scanDuration={2.5}
-          scanDelay={2}
-          scanDirection="pingpong"
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 0
-          }}
-        />
+        {/* 🟣 SIMPLE BACKGROUND */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(135deg, rgba(175, 153, 246, 0.1), rgba(66, 133, 244, 0.1))",
+          zIndex: 0
+        }} />
 
         {/* 📝 CENTER TEXT (Typing Effect) */}
         <div
@@ -347,23 +330,12 @@ const Home = () => {
           overflow: "hidden"
         }}
       >
-        <GridScan
-          scanColor="#AF99F6"
-          linesColor="#392e4e"
-          scanOpacity={0.25}
-          gridScale={0.14}
-          lineThickness={1}
-          scanGlow={0.4}
-          scanSoftness={2.2}
-          noiseIntensity={0.01}
-          scanDuration={3}
-          scanDelay={3}
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 0
-          }}
-        />
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(135deg, rgba(175, 153, 246, 0.05), rgba(66, 133, 244, 0.05))",
+          zIndex: 0
+        }} />
 
         <div style={{ position: "relative", zIndex: 2 }}>
           <h2
@@ -381,8 +353,18 @@ const Home = () => {
             How It Works
           </h2>
 
-          {/* Interactive Stepper */}
-          <ProjectWorkflowStepper />
+          {/* Simple Stepper */}
+          <div style={{
+            maxWidth: "800px",
+            margin: "0 auto",
+            padding: "40px 20px",
+            background: "rgba(255, 255, 255, 0.05)",
+            borderRadius: "16px",
+            textAlign: "center"
+          }}>
+            <h3 style={{ color: "#AF99F6", marginBottom: "20px" }}>Simple Process</h3>
+            <p style={{ color: "#ccc" }}>Submit → AI Analysis → Municipal Review → Resolution</p>
+          </div>
 
           {/* Legacy Timeline (hidden but kept for reference) */}
           <div
@@ -430,23 +412,12 @@ const Home = () => {
           overflow: "hidden"
         }}
       >
-        <GridScan
-          scanColor="#AF99F6"
-          linesColor="#392e4e"
-          scanOpacity={0.25}
-          gridScale={0.14}
-          lineThickness={1}
-          scanGlow={0.4}
-          scanSoftness={2.2}
-          noiseIntensity={0.01}
-          scanDuration={3}
-          scanDelay={3}
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 0
-          }}
-        />
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(135deg, rgba(175, 153, 246, 0.05), rgba(66, 133, 244, 0.05))",
+          zIndex: 0
+        }} />
 
         <div style={{ position: "relative", zIndex: 2 }}>
           <h2
@@ -492,18 +463,22 @@ const Home = () => {
             />
           </div>
 
-          {/* Circular Gallery for Impact Categories */}
-          <div style={{ marginTop: "80px", height: "600px" }}>
-            <CircularGallery
-              bend={2}
-              textColor="#ffffff"
-              borderRadius={0.05}
-              font="bold 32px Figtree"
-              scrollSpeed={1}
-              scrollEase={0.08}
-              autoRotate={true}
-              autoRotateSpeed={0.3}
-            />
+          {/* Simple Impact Stats */}
+          <div style={{
+            textAlign: "center",
+            padding: "40px 20px",
+            background: "rgba(255, 255, 255, 0.05)",
+            borderRadius: "16px",
+            margin: "40px auto",
+            maxWidth: "600px"
+          }}>
+            <h3 style={{ color: "#AF99F6", marginBottom: "20px" }}>Our Impact</h3>
+            <div style={{ display: "flex", justifyContent: "space-around", flexWrap: "wrap", gap: "20px" }}>
+              <div><strong style={{ color: "#4285F4" }}>10K+</strong><br/>Complaints</div>
+              <div><strong style={{ color: "#34A853" }}>2.5K+</strong><br/>High Priority</div>
+              <div><strong style={{ color: "#FBBC05" }}>48hrs</strong><br/>Avg Resolution</div>
+              <div><strong style={{ color: "#EA4335" }}>50+</strong><br/>Cities</div>
+            </div>
           </div>
         </div>
       </section>
@@ -649,23 +624,12 @@ const Home = () => {
           overflow: "hidden"
         }}
       >
-        <GridScan
-          scanColor="#AF99F6"
-          linesColor="#392e4e"
-          scanOpacity={0.25}
-          gridScale={0.14}
-          lineThickness={1}
-          scanGlow={0.4}
-          scanSoftness={2.2}
-          noiseIntensity={0.01}
-          scanDuration={3}
-          scanDelay={3}
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 0
-          }}
-        />
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(135deg, rgba(175, 153, 246, 0.05), rgba(66, 133, 244, 0.05))",
+          zIndex: 0
+        }} />
 
         <div
           className="card"

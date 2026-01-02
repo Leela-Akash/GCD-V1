@@ -50,34 +50,9 @@ const Footer = () => {
             }}>
               Empowering citizens with AI-driven civic engagement. Transforming urban governance through intelligent complaint analysis and transparent resolution.
             </p>
-            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-              {['Twitter', 'LinkedIn', 'GitHub', 'YouTube'].map((platform) => (
-                <a
-                  key={platform}
-                  href="#"
-                  style={{
-                    color: '#af99f6',
-                    textDecoration: 'none',
-                    padding: '8px 12px',
-                    border: '1px solid #af99f6',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    transition: 'all 0.3s ease',
-                    display: 'inline-block'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = '#af99f6';
-                    e.target.style.color = '#050508';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = 'transparent';
-                    e.target.style.color = '#af99f6';
-                  }}
-                >
-                  {platform}
-                </a>
-              ))}
-            </div>
+            
+       
+            
           </div>
 
           {/* Quick Links */}
@@ -132,10 +107,10 @@ const Footer = () => {
                 📧 support@civicsense.ai
               </p>
               <p style={{ color: 'rgba(255, 255, 255, 0.8)', margin: '4px 0' }}>
-                📞 +1 (555) 123-4567
+                📞 8885277944
               </p>
               <p style={{ color: 'rgba(255, 255, 255, 0.8)', margin: '4px 0' }}>
-                📍 Mountain View, CA
+                📍 Vaddeswaram,Vijayawada,Andhra Pradesh,India
               </p>
             </div>
             <p style={{
