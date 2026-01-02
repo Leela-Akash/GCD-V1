@@ -1,6 +1,14 @@
+// Get the base URL for API calls
+const getApiBaseUrl = () => {
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:3000/api';
+  }
+  return '/api'; // Use relative path for production
+};
+
 export async function submitComplaint({ description, category, customCategory, location, userId }) {
   const res = await fetch(
-    "http://127.0.0.1:5001/ai-civic-voice/us-central1/submitComplaint",
+    `${getApiBaseUrl()}/submit-complaint`,
     {
       method: "POST",
       headers: {
@@ -28,7 +36,7 @@ export async function submitComplaint({ description, category, customCategory, l
 
 export async function uploadComplaintMedia(complaintId, files) {
   const res = await fetch(
-    "http://127.0.0.1:5001/ai-civic-voice/us-central1/updateComplaintMedia",
+    `${getApiBaseUrl()}/upload-media`,
     {
       method: "POST",
       headers: {
@@ -50,7 +58,7 @@ export async function uploadComplaintMedia(complaintId, files) {
 
 export async function analyzeComplaintMedia(complaintId, mediaUrls) {
   const res = await fetch(
-    "http://127.0.0.1:5001/ai-civic-voice/us-central1/analyzeMedia",
+    `${getApiBaseUrl()}/analyze-media`,
     {
       method: "POST",
       headers: {
