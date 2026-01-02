@@ -1,5 +1,7 @@
 import express from 'express';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { db } from './firebase-server.js';
+import { collection, addDoc, updateDoc, doc, getDocs, query, where } from 'firebase/firestore';
 
 const router = express.Router();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -16,13 +18,21 @@ router.post('/submit-complaint', async (req, res) => {
     
     const { description, category, customCategory, location, userId } = req.body;
     
-    // Simple response for now
-    const complaintId = Date.now().toString();
+    // Create complaint document in Firestore
+    const complaintData = {
+      description,
+      category: category === 'Other' ? customCategory : category,
+      location,
+      userId,
+      status: 'pending',
+      createdAt: new Date(),
+      priority: 'MEDIUM' // Default priority
+    };
+
+    // Add to Firestore
+    const docRef = await addDoc(collection(db, 'complaints'), complaintData);
     
     // Try Gemini AI analysis
-    let priority = 'MEDIUM';
-    let analysis = 'Basic analysis';
-    
     try {
       if (process.env.GEMINI_API_KEY) {
         const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
@@ -37,8 +47,11 @@ router.post('/submit-complaint', async (req, res) => {
         const response = await result.response;
         const aiResult = JSON.parse(response.text());
         
-        priority = aiResult.priority;
-        analysis = aiResult.analysis;
+        // Update complaint with AI analysis
+        await updateDoc(doc(db, 'complaints', docRef.id), {
+          priority: aiResult.priority,
+          aiAnalysis: aiResult.analysis
+        });
       }
     } catch (aiError) {
       console.error('AI Analysis failed:', aiError);
@@ -46,15 +59,33 @@ router.post('/submit-complaint', async (req, res) => {
     
     res.json({ 
       success: true, 
-      id: complaintId,
-      priority,
-      analysis,
+      id: docRef.id,
       message: 'Complaint submitted successfully'
     });
     
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Failed to submit complaint', details: error.message });
+  }
+});
+
+// Get user complaints
+router.get('/complaints/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const q = query(collection(db, 'complaints'), where('userId', '==', userId));
+    const querySnapshot = await getDocs(q);
+    
+    const complaints = [];
+    querySnapshot.forEach((doc) => {
+      complaints.push({ id: doc.id, ...doc.data() });
+    });
+    
+    res.json({ success: true, complaints });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Failed to fetch complaints' });
   }
 });
 

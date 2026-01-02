@@ -1,47 +1,46 @@
 import { useEffect, useState } from "react";
-import { db } from "../../services/firebase";
-import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
-import { auth } from "../../services/firebase";
+import { useAuth } from "../../context/AuthContext";
+import { getUserComplaints } from "../../services/geminiService";
 import "./ComplaintStatus.css";
 
 const ComplaintStatus = () => {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
-    // For demo purposes, show all complaints for now
-    // In real app, filter by actual user ID
-    
-    const q = query(
-      collection(db, "complaints"),
-      orderBy("createdAt", "desc")
-    );
+    const fetchComplaints = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        const userComplaints = await getUserComplaints(user.uid);
+        console.log("📋 Found complaints:", userComplaints);
+        setComplaints(userComplaints);
+      } catch (error) {
+        console.error("Failed to fetch complaints:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    const unsub = onSnapshot(q, snap => {
-      const allComplaints = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      console.log("📋 Found complaints:", allComplaints);
-      setComplaints(allComplaints);
-      setLoading(false);
-    });
-
-    return () => unsub();
-  }, []);
+    fetchComplaints();
+  }, [user]);
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "submitted": return "#f59e0b";
-      case "analyzed": return "#10b981";
+      case "pending": return "#f59e0b";
       case "in_progress": return "#3b82f6";
       case "resolved": return "#059669";
-      case "analysis_failed": return "#ef4444";
       default: return "#6b7280";
     }
   };
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case "CRITICAL": return "#dc2626";
-      case "HIGH": return "#ea580c";
+      case "HIGH": return "#dc2626";
       case "MEDIUM": return "#d97706";
       case "LOW": return "#16a34a";
       default: return "#6b7280";
@@ -56,6 +55,14 @@ const ComplaintStatus = () => {
     );
   }
 
+  if (!user) {
+    return (
+      <div className="status-wrapper">
+        <h2>Please log in to view your complaints</h2>
+      </div>
+    );
+  }
+
   return (
     <div className="status-wrapper">
       <h2 className="status-title">My Complaints</h2>
@@ -63,7 +70,7 @@ const ComplaintStatus = () => {
       {complaints.length === 0 ? (
         <div className="no-complaints">
           <p>No complaints submitted yet.</p>
-          <button onClick={() => window.location.href = '/raise-complaint'}>
+          <button onClick={() => window.location.href = '/citizen/raise-complaint'}>
             Submit Your First Complaint
           </button>
         </div>
@@ -80,7 +87,7 @@ const ComplaintStatus = () => {
                   >
                     {complaint.status.replace('_', ' ').toUpperCase()}
                   </span>
-                  {complaint.priority && complaint.priority !== "pending" && (
+                  {complaint.priority && (
                     <span 
                       className="priority-badge"
                       style={{ backgroundColor: getPriorityColor(complaint.priority) }}
@@ -92,14 +99,8 @@ const ComplaintStatus = () => {
               </div>
 
               <div className="complaint-content">
-                <p className="description">{complaint.originalDescription || complaint.description}</p>
+                <p className="description">{complaint.description}</p>
                 
-                {complaint.customCategory && (
-                  <p className="custom-category">
-                    <strong>Specific Issue:</strong> {complaint.customCategory}
-                  </p>
-                )}
-
                 {complaint.location && (
                   <p className="location">
                     <strong>📍 Location:</strong> 
@@ -113,50 +114,19 @@ const ComplaintStatus = () => {
                     </a>
                   </p>
                 )}
-
-                {complaint.hasAudio && (
-                  <p className="audio-indicator">
-                    🎙️ Voice recording included
-                  </p>
-                )}
-
-                {complaint.media && complaint.media.length > 0 && (
-                  <p className="media-indicator">
-                    📎 {complaint.media.length} file(s) attached
-                  </p>
-                )}
               </div>
 
               <div className="complaint-footer">
                 <div className="timestamps">
                   <p className="submitted-time">
-                    <strong>Submitted:</strong> {complaint.createdAt?.toDate?.()?.toLocaleString() || 'Just now'}
+                    <strong>Submitted:</strong> {new Date(complaint.createdAt.seconds * 1000).toLocaleString()}
                   </p>
-                  {complaint.analyzedAt && (
-                    <p className="analyzed-time">
-                      <strong>Analyzed:</strong> {complaint.analyzedAt?.toDate?.()?.toLocaleString()}
-                    </p>
-                  )}
                 </div>
-                
-                {complaint.hasMediaAnalysis && complaint.mediaAnalysis && (
-                  <div className="media-analysis">
-                    <strong>🖼️ Image Analysis:</strong>
-                    <p>{complaint.mediaAnalysis}</p>
-                  </div>
-                )}
                 
                 {complaint.aiAnalysis && (
                   <div className="ai-insight">
-                    <strong>💡 AI Insight:</strong>
+                    <strong>💡 AI Analysis:</strong>
                     <p>{complaint.aiAnalysis}</p>
-                  </div>
-                )}
-                
-                {!complaint.aiAnalysis && complaint.status === "submitted" && (
-                  <div className="ai-insight">
-                    <strong>💡 AI Insight:</strong>
-                    <p>Analysis pending...</p>
                   </div>
                 )}
               </div>

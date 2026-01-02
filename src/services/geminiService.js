@@ -34,6 +34,18 @@ export async function submitComplaint({ description, category, customCategory, l
   return data;
 }
 
+// Get user complaints
+export async function getUserComplaints(userId) {
+  const res = await fetch(`${getApiBaseUrl()}/complaints/${userId}`);
+  const data = await res.json();
+  
+  if (!res.ok) {
+    throw new Error("Failed to fetch complaints");
+  }
+  
+  return data.complaints;
+}
+
 export async function uploadComplaintMedia(complaintId, files) {
   const res = await fetch(
     `${getApiBaseUrl()}/upload-media`,
