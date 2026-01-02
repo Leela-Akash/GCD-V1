@@ -1,11 +1,10 @@
 import express from 'express';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { db } from './firebase-server.js';
+import { collection, addDoc, updateDoc, doc, getDocs, query, where, orderBy } from 'firebase/firestore';
 
 const router = express.Router();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-// In-memory storage for demo (replace with proper database in production)
-const complaints = new Map();
 
 // Test endpoint
 router.get('/test', (req, res) => {
@@ -19,12 +18,8 @@ router.post('/submit-complaint', async (req, res) => {
     
     const { description, category, customCategory, location, userId } = req.body;
     
-    // Generate complaint ID
-    const complaintId = Date.now().toString();
-    
     // Create complaint data
     const complaintData = {
-      id: complaintId,
       description,
       category: category === 'Other' ? customCategory : category,
       location,
@@ -34,10 +29,14 @@ router.post('/submit-complaint', async (req, res) => {
       priority: 'MEDIUM' // Default priority
     };
     
-    // Try Gemini AI analysis
+    // Add to Firestore
+    const docRef = await addDoc(collection(db, 'complaints'), complaintData);
+    console.log('Complaint saved to Firestore:', docRef.id);
+    
+    // Try Gemini AI analysis (skip if quota exceeded)
     try {
       if (process.env.GEMINI_API_KEY) {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Use stable model
         
         const prompt = `Analyze this civic complaint and determine priority (HIGH/MEDIUM/LOW):
         Description: ${description}
@@ -50,22 +49,20 @@ router.post('/submit-complaint', async (req, res) => {
         const aiResult = JSON.parse(response.text());
         
         // Update complaint with AI analysis
-        complaintData.priority = aiResult.priority;
-        complaintData.aiAnalysis = aiResult.analysis;
+        await updateDoc(doc(db, 'complaints', docRef.id), {
+          priority: aiResult.priority,
+          aiAnalysis: aiResult.analysis
+        });
+        
+        console.log('AI analysis completed');
       }
     } catch (aiError) {
-      console.error('AI Analysis failed:', aiError);
+      console.error('AI Analysis failed (continuing without it):', aiError.message);
     }
-    
-    // Store complaint in memory
-    if (!complaints.has(userId)) {
-      complaints.set(userId, []);
-    }
-    complaints.get(userId).push(complaintData);
     
     res.json({ 
       success: true, 
-      id: complaintId,
+      id: docRef.id,
       message: 'Complaint submitted successfully'
     });
     
@@ -80,11 +77,29 @@ router.get('/complaints/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
     
-    const userComplaints = complaints.get(userId) || [];
+    const q = query(
+      collection(db, 'complaints'), 
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
+    );
     
-    res.json({ success: true, complaints: userComplaints });
+    const querySnapshot = await getDocs(q);
+    
+    const complaints = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      complaints.push({ 
+        id: doc.id, 
+        ...data,
+        createdAt: data.createdAt.toDate() // Convert Firestore timestamp
+      });
+    });
+    
+    console.log(`Found ${complaints.length} complaints for user ${userId}`);
+    res.json({ success: true, complaints });
+    
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error fetching complaints:', error);
     res.status(500).json({ error: 'Failed to fetch complaints' });
   }
 });
