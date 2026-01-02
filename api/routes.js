@@ -36,7 +36,7 @@ router.post('/submit-complaint', async (req, res) => {
     // Try Gemini AI analysis (skip if quota exceeded)
     try {
       if (process.env.GEMINI_API_KEY) {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Use stable model
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' }); // Use correct model name
         
         const prompt = `Analyze this civic complaint and determine priority (HIGH/MEDIUM/LOW):
         Description: ${description}
@@ -77,10 +77,10 @@ router.get('/complaints/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
     
+    // Simple query without orderBy to avoid index requirement
     const q = query(
       collection(db, 'complaints'), 
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
+      where('userId', '==', userId)
     );
     
     const querySnapshot = await getDocs(q);
@@ -94,6 +94,9 @@ router.get('/complaints/:userId', async (req, res) => {
         createdAt: data.createdAt.toDate() // Convert Firestore timestamp
       });
     });
+    
+    // Sort in JavaScript instead of Firestore
+    complaints.sort((a, b) => b.createdAt - a.createdAt);
     
     console.log(`Found ${complaints.length} complaints for user ${userId}`);
     res.json({ success: true, complaints });
