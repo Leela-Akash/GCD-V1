@@ -1,10 +1,11 @@
 import express from 'express';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { db } from './firebase-server.js';
-import { collection, addDoc, updateDoc, doc, getDocs, query, where } from 'firebase/firestore';
 
 const router = express.Router();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// In-memory storage for demo (replace with proper database in production)
+const complaints = new Map();
 
 // Test endpoint
 router.get('/test', (req, res) => {
@@ -18,8 +19,12 @@ router.post('/submit-complaint', async (req, res) => {
     
     const { description, category, customCategory, location, userId } = req.body;
     
-    // Create complaint document in Firestore
+    // Generate complaint ID
+    const complaintId = Date.now().toString();
+    
+    // Create complaint data
     const complaintData = {
+      id: complaintId,
       description,
       category: category === 'Other' ? customCategory : category,
       location,
@@ -28,9 +33,6 @@ router.post('/submit-complaint', async (req, res) => {
       createdAt: new Date(),
       priority: 'MEDIUM' // Default priority
     };
-
-    // Add to Firestore
-    const docRef = await addDoc(collection(db, 'complaints'), complaintData);
     
     // Try Gemini AI analysis
     try {
@@ -48,18 +50,22 @@ router.post('/submit-complaint', async (req, res) => {
         const aiResult = JSON.parse(response.text());
         
         // Update complaint with AI analysis
-        await updateDoc(doc(db, 'complaints', docRef.id), {
-          priority: aiResult.priority,
-          aiAnalysis: aiResult.analysis
-        });
+        complaintData.priority = aiResult.priority;
+        complaintData.aiAnalysis = aiResult.analysis;
       }
     } catch (aiError) {
       console.error('AI Analysis failed:', aiError);
     }
     
+    // Store complaint in memory
+    if (!complaints.has(userId)) {
+      complaints.set(userId, []);
+    }
+    complaints.get(userId).push(complaintData);
+    
     res.json({ 
       success: true, 
-      id: docRef.id,
+      id: complaintId,
       message: 'Complaint submitted successfully'
     });
     
@@ -74,15 +80,9 @@ router.get('/complaints/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
     
-    const q = query(collection(db, 'complaints'), where('userId', '==', userId));
-    const querySnapshot = await getDocs(q);
+    const userComplaints = complaints.get(userId) || [];
     
-    const complaints = [];
-    querySnapshot.forEach((doc) => {
-      complaints.push({ id: doc.id, ...doc.data() });
-    });
-    
-    res.json({ success: true, complaints });
+    res.json({ success: true, complaints: userComplaints });
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Failed to fetch complaints' });

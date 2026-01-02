@@ -119,7 +119,7 @@ const ComplaintStatus = () => {
               <div className="complaint-footer">
                 <div className="timestamps">
                   <p className="submitted-time">
-                    <strong>Submitted:</strong> {new Date(complaint.createdAt.seconds * 1000).toLocaleString()}
+                    <strong>Submitted:</strong> {new Date(complaint.createdAt).toLocaleString()}
                   </p>
                 </div>
                 
