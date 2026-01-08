@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GridScan } from "../components/effects/GridScan"; // ✅ FIXED IMPORT
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { db } from '../services/firebase';
+import { GridScan } from "../components/effects/GridScan";
 import TextType from "../components/effects/TextType";
 import Footer from "../components/common/Footer";
 import SpotlightCard from "../components/home/SpotlightCard";
@@ -91,6 +93,12 @@ const styles = `
 
 const Home = () => {
   const [animatedStats, setAnimatedStats] = useState(false);
+  const [realTimeStats, setRealTimeStats] = useState({
+    totalComplaints: 0,
+    highPriority: 0,
+    avgResolutionTime: 48,
+    citiesCovered: 0
+  });
   const statsRef = useRef(null);
   const featureRef = useRef(null);
   const howItWorksRef = useRef(null);
@@ -98,6 +106,57 @@ const Home = () => {
   const ctaRef = useRef(null);
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Real-time Firebase data listener
+  useEffect(() => {
+    const complaintsQuery = query(
+      collection(db, 'complaints'),
+      orderBy('createdAt', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(complaintsQuery, (snapshot) => {
+      const complaints = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      // Calculate real-time stats
+      const totalComplaints = complaints.length;
+      const highPriority = complaints.filter(c => 
+        c.priority === 'HIGH' || c.priority === 'CRITICAL'
+      ).length;
+      
+      // Calculate unique cities from locations
+      const uniqueCities = new Set();
+      complaints.forEach(complaint => {
+        if (complaint.location && complaint.location.lat && complaint.location.lng) {
+          // Simple city approximation based on lat/lng ranges
+          const cityKey = `${Math.floor(complaint.location.lat)}_${Math.floor(complaint.location.lng)}`;
+          uniqueCities.add(cityKey);
+        }
+      });
+      
+      // Calculate average resolution time
+      const resolvedComplaints = complaints.filter(c => c.status === 'resolved' && c.resolvedAt && c.createdAt);
+      let avgResolutionTime = 48; // Default
+      
+      if (resolvedComplaints.length > 0) {
+        const totalResolutionTime = resolvedComplaints.reduce((sum, complaint) => {
+          const created = complaint.createdAt?.toDate?.() || new Date(complaint.createdAt);
+          const resolved = complaint.resolvedAt?.toDate?.() || new Date(complaint.resolvedAt);
+          const timeDiff = (resolved - created) / (1000 * 60 * 60); // hours
+          return sum + timeDiff;
+        }, 0);
+        avgResolutionTime = Math.round(totalResolutionTime / resolvedComplaints.length);
+      }
+      
+      setRealTimeStats({
+        totalComplaints,
+        highPriority,
+        avgResolutionTime,
+        citiesCovered: Math.max(uniqueCities.size, 1) // At least 1 city
+      });
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleRaiseComplaint = () => {
     if (user) {
@@ -124,8 +183,13 @@ const Home = () => {
             if (entry.target === statsRef.current && !animatedStats) {
               setAnimatedStats(true);
               const counters = entry.target.querySelectorAll('.counter');
+              const targets = [
+                realTimeStats.totalComplaints || 0,
+                realTimeStats.highPriority || 0, 
+                realTimeStats.avgResolutionTime || 48,
+                realTimeStats.citiesCovered || 1
+              ];
               counters.forEach((counter, index) => {
-                const targets = [10000, 2500, 48, 50];
                 animateCounter(counter, targets[index]);
               });
             }
@@ -142,7 +206,7 @@ const Home = () => {
     if (ctaRef.current) observer.observe(ctaRef.current);
 
     return () => observer.disconnect();
-  }, [animatedStats]);
+  }, [animatedStats, realTimeStats]);
 
   return (
     <div style={{ background: "#050508", color: "#fff" }}>
@@ -512,23 +576,23 @@ const Home = () => {
           >
             <StatCard
               label="Total Complaints"
-              value="10,000+"
-              suffix="+"
+              value={realTimeStats.totalComplaints}
+              suffix=""
             />
             <StatCard
               label="High Priority Cases"
-              value="2,500+"
-              suffix="+"
+              value={realTimeStats.highPriority}
+              suffix=""
             />
             <StatCard
               label="Average Resolution Time"
-              value="48"
+              value={realTimeStats.avgResolutionTime}
               suffix=" hours"
             />
             <StatCard
               label="Cities Covered"
-              value="50+"
-              suffix="+"
+              value={realTimeStats.citiesCovered}
+              suffix=""
             />
           </div>
 

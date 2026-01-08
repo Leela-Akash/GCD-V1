@@ -101,17 +101,20 @@ export default function Stepper({
 
         {!isCompleted && (
           <div className={`footer-container ${footerClassName}`}>
-            <div className={`footer-nav ${currentStep !== 1 ? 'spread' : 'end'}`}>
-              {currentStep !== 1 && (
-                <button
-                  onClick={handleBack}
-                  className={`back-button ${currentStep === 1 ? 'inactive' : ''}`}
-                  {...backButtonProps}
-                >
-                  {backButtonText}
-                </button>
-              )}
-              <button onClick={isLastStep ? handleComplete : handleNext} className="next-button" {...nextButtonProps}>
+            <div className="footer-nav-fixed">
+              <button
+                onClick={handleBack}
+                className={`back-button ${currentStep === 1 ? 'inactive' : ''}`}
+                style={{ visibility: currentStep === 1 ? 'hidden' : 'visible' }}
+                {...backButtonProps}
+              >
+                {backButtonText}
+              </button>
+              <button 
+                onClick={isLastStep ? handleComplete : handleNext} 
+                className="next-button" 
+                {...nextButtonProps}
+              >
                 {isLastStep ? 'Complete' : nextButtonText}
               </button>
             </div>

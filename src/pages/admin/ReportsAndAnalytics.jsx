@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { db } from "../../services/firebase";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import AdminMagicBento from './AdminMagicBento';
@@ -7,21 +8,51 @@ import "./AdminComponents.css";
 
 function ReportsAndAnalytics() {
   const [complaints, setComplaints] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const q = query(
+    // Real-time complaints listener
+    const complaintsQuery = query(
       collection(db, "complaints"),
       orderBy("createdAt", "desc")
     );
 
-    const unsub = onSnapshot(q, snap => {
+    const unsubComplaints = onSnapshot(complaintsQuery, snap => {
       const allComplaints = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setComplaints(allComplaints);
+    });
+
+    // Real-time users listener
+    const usersQuery = query(
+      collection(db, "users"),
+      orderBy("createdAt", "desc")
+    );
+
+    const unsubUsers = onSnapshot(usersQuery, snap => {
+      const allUsers = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setUsers(allUsers);
+    });
+
+    // Real-time contacts listener
+    const contactsQuery = query(
+      collection(db, "contacts"),
+      orderBy("createdAt", "desc")
+    );
+
+    const unsubContacts = onSnapshot(contactsQuery, snap => {
+      const allContacts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setContacts(allContacts);
       setLoading(false);
     });
 
-    return () => unsub();
+    return () => {
+      unsubComplaints();
+      unsubUsers();
+      unsubContacts();
+    };
   }, []);
   
   if (loading) {
@@ -29,7 +60,7 @@ function ReportsAndAnalytics() {
       <div className="reports-analytics">
         <div className="loading-container">
           <div className="loading-spinner"></div>
-          <h2>Loading Analytics...</h2>
+          <h2>Loading Real-time Analytics...</h2>
         </div>
       </div>
     );
@@ -37,17 +68,19 @@ function ReportsAndAnalytics() {
 
   const stats = {
     total: complaints.length,
-    pending: complaints.filter(c => c.status === "submitted" || c.status === "analyzed").length,
+    pending: complaints.filter(c => c.status === "pending" || c.status === "submitted" || c.status === "analyzed").length,
     inProgress: complaints.filter(c => c.status === "in_progress").length,
     resolved: complaints.filter(c => c.status === "resolved").length,
     critical: complaints.filter(c => c.priority === "CRITICAL").length,
     high: complaints.filter(c => c.priority === "HIGH").length,
+    totalUsers: users.length,
+    totalContacts: contacts.length,
     byCategory: complaints.reduce((acc, c) => {
       acc[c.category] = (acc[c.category] || 0) + 1;
       return acc;
     }, {}),
     byPriority: complaints.reduce((acc, c) => {
-      acc[c.priority] = (acc[c.priority] || 0) + 1;
+      acc[c.priority || 'MEDIUM'] = (acc[c.priority || 'MEDIUM'] || 0) + 1;
       return acc;
     }, {})
   };
@@ -59,6 +92,13 @@ function ReportsAndAnalytics() {
       icon: "📊",
       gradient: "linear-gradient(135deg, #667eea, #764ba2)",
       description: "All time complaints"
+    },
+    {
+      title: "Active Users",
+      value: stats.totalUsers,
+      icon: "👥",
+      gradient: "linear-gradient(135deg, #4285F4, #34A853)",
+      description: "Registered citizens"
     },
     {
       title: "Resolution Rate",
@@ -75,10 +115,17 @@ function ReportsAndAnalytics() {
       description: "Urgent attention needed"
     },
     {
+      title: "Contact Inquiries",
+      value: stats.totalContacts,
+      icon: "📧",
+      gradient: "linear-gradient(135deg, #a8edea, #fed6e3)",
+      description: "Support requests"
+    },
+    {
       title: "Avg Response Time",
       value: "2.4",
       icon: "⏱️",
-      gradient: "linear-gradient(135deg, #a8edea, #fed6e3)",
+      gradient: "linear-gradient(135deg, #ffecd2, #fcb69f)",
       description: "Hours to first response"
     }
   ];
@@ -97,7 +144,7 @@ function ReportsAndAnalytics() {
   };
 
   const getCategoryIcon = (category) => {
-    switch (category.toLowerCase()) {
+    switch (category?.toLowerCase()) {
       case "road": return "🚗";
       case "water": return "💧";
       case "electricity": return "⚡";
@@ -109,10 +156,19 @@ function ReportsAndAnalytics() {
   return (
     <div className="reports-analytics">
       <div className="page-header">
-        <h1 className="page-title">Reports & Analytics</h1>
-        <p className="page-subtitle">
-          Comprehensive insights and performance metrics
-        </p>
+        <button className="back-btn" onClick={() => navigate('/admin/dashboard')}>
+          ← Back to Dashboard
+        </button>
+        <div className="header-content">
+          <h1 className="page-title">📊 Reports & Analytics</h1>
+          <p className="page-subtitle">
+            Real-time insights and performance metrics
+          </p>
+          <div className="live-indicator">
+            <span className="live-dot"></span>
+            Live Updates
+          </div>
+        </div>
       </div>
 
       <AdminMagicBento 
@@ -125,6 +181,7 @@ function ReportsAndAnalytics() {
         <div className="analytics-card">
           <div className="card-header">
             <h3 className="card-title">📊 Complaint Status Breakdown</h3>
+            <div className="real-time-badge">Real-time</div>
           </div>
           <div className="status-stats">
             <div className="status-item">
@@ -160,9 +217,10 @@ function ReportsAndAnalytics() {
         <div className="analytics-card">
           <div className="card-header">
             <h3 className="card-title">📊 Complaints by Category</h3>
+            <div className="real-time-badge">Live Data</div>
           </div>
           <div className="category-stats">
-            {categoryData.map(([category, count], index) => (
+            {categoryData.length > 0 ? categoryData.map(([category, count], index) => (
               <div key={category} className="category-item">
                 <div className="category-info">
                   <span className="category-icon">{getCategoryIcon(category)}</span>
@@ -181,16 +239,21 @@ function ReportsAndAnalytics() {
                   ></div>
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="empty-state-small">
+                <p>No complaints by category yet</p>
+              </div>
+            )}
           </div>
         </div>
 
         <div className="analytics-card">
           <div className="card-header">
             <h3 className="card-title">🚨 Priority Distribution</h3>
+            <div className="real-time-badge">Live Updates</div>
           </div>
           <div className="priority-stats">
-            {priorityData.map(([priority, count], index) => (
+            {priorityData.length > 0 ? priorityData.map(([priority, count], index) => (
               <div key={priority} className="priority-item">
                 <div className="priority-info">
                   <span 
@@ -206,13 +269,18 @@ function ReportsAndAnalytics() {
                   {stats.total > 0 ? Math.round((count / stats.total) * 100) : 0}%
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="empty-state-small">
+                <p>No priority data available</p>
+              </div>
+            )}
           </div>
         </div>
 
         <div className="analytics-card performance-card">
           <div className="card-header">
             <h3 className="card-title">🚀 Performance Metrics</h3>
+            <div className="real-time-badge">Live Stats</div>
           </div>
           <div className="performance-stats">
             <div className="metric-item">
@@ -240,6 +308,15 @@ function ReportsAndAnalytics() {
               <div className="metric-info">
                 <div className="metric-label">Satisfaction Score</div>
                 <div className="metric-value">4.2/5.0</div>
+              </div>
+            </div>
+            <div className="metric-item">
+              <div className="metric-icon">👥</div>
+              <div className="metric-info">
+                <div className="metric-label">Active Users</div>
+                <div className="metric-value">
+                  <CountUp from={0} to={stats.totalUsers} duration={1.5} />
+                </div>
               </div>
             </div>
           </div>
