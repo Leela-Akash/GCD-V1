@@ -267,6 +267,10 @@
     font-size: 2rem;
   }
   
+  .dashboard-subtitle {
+    font-size: 1rem;
+  }
+  
   .stats-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
@@ -274,10 +278,81 @@
   
   .dashboard-content {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
   }
   
   .stat-card {
     padding: 1.5rem;
+  }
+  
+  .stat-icon {
+    font-size: 2.5rem;
+  }
+  
+  .stat-value {
+    font-size: 2rem;
+  }
+  
+  .recent-complaints, .quick-actions {
+    padding: 1.5rem;
+  }
+  
+  .section-title {
+    font-size: 1.3rem;
+  }
+  
+  .complaint-item {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-dashboard {
+    padding: 0.75rem;
+  }
+  
+  .dashboard-header {
+    margin-bottom: 2rem;
+  }
+  
+  .dashboard-title {
+    font-size: 1.6rem;
+  }
+  
+  .dashboard-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .stat-card {
+    padding: 1.25rem;
+  }
+  
+  .stat-icon {
+    font-size: 2rem;
+  }
+  
+  .stat-value {
+    font-size: 1.75rem;
+  }
+  
+  .stat-title {
+    font-size: 1rem;
+  }
+  
+  .recent-complaints, .quick-actions {
+    padding: 1.25rem;
+  }
+  
+  .section-title {
+    font-size: 1.2rem;
+  }
+  
+  .complaint-desc {
+    font-size: 0.9rem;
+  }
+  
+  .action-btn {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
   }
 }

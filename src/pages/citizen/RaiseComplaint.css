@@ -238,24 +238,78 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .raise-page {
-    padding: 20px 15px;
+    padding: 20px 10px;
   }
   
   .raise-container {
-    padding: 25px;
+    padding: 20px;
+    border-radius: 20px;
   }
   
   .raise-title {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
+    margin-bottom: 25px;
   }
   
   .raise-form {
-    gap: 15px;
+    gap: 12px;
+  }
+  
+  .raise-form select,
+  .raise-form input,
+  .raise-form textarea {
+    padding: 12px 15px;
+    font-size: 0.95rem;
+  }
+  
+  .raise-form button {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+  }
+  
+  .submit-btn {
+    padding: 15px 25px !important;
+    font-size: 1rem !important;
   }
   
   .camera-modal {
-    padding: 20px;
+    padding: 15px;
     width: 95%;
+  }
+  
+  .camera-modal button {
+    padding: 10px 15px !important;
+    font-size: 0.9rem !important;
+    margin: 3px !important;
+  }
+  
+  .raise-form > div {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .raise-form > div img,
+  .raise-form > div video,
+  .raise-form > div audio {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .raise-container {
+    padding: 15px;
+  }
+  
+  .raise-title {
+    font-size: 1.4rem;
+  }
+  
+  .raise-form select,
+  .raise-form input,
+  .raise-form textarea {
+    padding: 10px 12px;
+    font-size: 0.9rem;
   }
 }
 

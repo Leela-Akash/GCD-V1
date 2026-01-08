@@ -18,13 +18,13 @@ const CitizenDashboard = () => {
   const raiseRef = useRef(null);
   const statusRef = useRef(null);
 
+  console.log("CitizenDashboard rendering...");
+
   return (
     <div className="citizen-dashboard-wrapper">
-
       <h1 className="dashboard-title">Citizen Dashboard</h1>
 
       <div className="dashboard-cards">
-
         {/* RAISE COMPLAINT */}
         <div
           ref={raiseRef}
@@ -34,7 +34,7 @@ const CitizenDashboard = () => {
           }
           onClick={() => navigate("/citizen/raise-complaint")}
         >
-          <h2>Raise Complaint</h2>
+          <h2>🎯 Raise Complaint</h2>
           <p>Submit complaints using text, voice, or image.</p>
         </div>
 
@@ -47,10 +47,9 @@ const CitizenDashboard = () => {
           }
           onClick={() => navigate("/citizen/complaint-status")}
         >
-          <h2>Complaint Status</h2>
-          <p>Track updates and AI-generated insights.</p>
+          <h2>📊 Complaint Status</h2>
+          <p>Track updates and view complaint progress.</p>
         </div>
-
       </div>
     </div>
   );

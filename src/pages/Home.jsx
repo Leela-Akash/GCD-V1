@@ -54,6 +54,38 @@ const styles = `
   .timeline-item:last-child::after {
     display: none;
   }
+  .hero-title {
+    font-size: 2rem !important;
+  }
+  .hero-subtitle {
+    font-size: 1rem !important;
+    padding: 0 20px !important;
+  }
+  .hero-buttons {
+    flex-direction: column !important;
+    gap: 15px !important;
+  }
+  .section-title {
+    font-size: 2rem !important;
+  }
+  .feature-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 20px !important;
+  }
+  .why-grid {
+    grid-template-columns: 1fr !important;
+    gap: 30px !important;
+  }
+  .section-padding {
+    padding: 60px 5% !important;
+  }
+  .why-content {
+    padding: 40px 20px !important;
+  }
 }
 `;
 
@@ -174,10 +206,11 @@ const Home = () => {
               pauseDuration={1500}
               showCursor={true}
               cursorCharacter="|"
-              className="home-typing"
+              className="home-typing hero-title"
             />
           </div>
           <p
+            className="hero-subtitle"
             style={{
               marginTop: "20px",
               fontSize: "1.2rem",
@@ -189,6 +222,7 @@ const Home = () => {
             AI-powered civic complaint platform for smart governance
           </p>
           <div
+            className="hero-buttons"
             style={{
               marginTop: "40px",
               display: "flex",
@@ -247,6 +281,7 @@ const Home = () => {
       {/* ================= FEATURE CARDS SECTION ================= */}
       <section
         ref={featureRef}
+        className="section-padding"
         style={{
           position: "relative",
           padding: "120px 12%",
@@ -256,6 +291,7 @@ const Home = () => {
       >
         <div style={{ position: "relative", zIndex: 2 }}>
           <h2
+            className="section-title"
             style={{
               fontSize: "2.5rem",
               fontWeight: "bold",
@@ -273,6 +309,7 @@ const Home = () => {
 
 
           <div
+            className="feature-grid"
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(3, 1fr)",
@@ -423,6 +460,7 @@ const Home = () => {
       {/* ================= IMPACT/STATS SECTION ================= */}
       <section
         ref={statsRef}
+        className="section-padding"
         style={{
           position: "relative",
           padding: "120px 12%",
@@ -450,6 +488,7 @@ const Home = () => {
 
         <div style={{ position: "relative", zIndex: 2 }}>
           <h2
+            className="section-title"
             style={{
               fontSize: "2.5rem",
               fontWeight: "bold",
@@ -464,6 +503,7 @@ const Home = () => {
             Our Impact
           </h2>
           <div
+            className="stats-grid"
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
@@ -550,6 +590,7 @@ const Home = () => {
 
   {/* CONTENT */}
   <div
+    className="why-content"
     style={{
       position: "relative",
       zIndex: 2,
@@ -596,6 +637,7 @@ const Home = () => {
 
     {/* Cards */}
     <div
+      className="why-grid"
       style={{
         display: "grid",
         gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",

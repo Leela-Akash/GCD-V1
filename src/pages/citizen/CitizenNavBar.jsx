@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { FiUser, FiLogOut, FiMenu, FiX } from "react-icons/fi";
+import { FiUser, FiLogOut, FiMenu, FiX, FiArrowLeft } from "react-icons/fi";
 import { logOut } from "../../services/firebase";
+import { useAuth } from "../../context/AuthContext";
 
 // Styles
 import "./CitizenNavBar.css";
 
 export default function CitizenNavBar({ children }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -21,6 +23,10 @@ export default function CitizenNavBar({ children }) {
     }
   };
 
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -31,7 +37,7 @@ export default function CitizenNavBar({ children }) {
         <div className="citizen-sidebar-header">
           <div className="citizen-logo">
             <span className="citizen-logo-icon">🏛️</span>
-            <span className="citizen-logo-text">UrbanVoice Citizen</span>
+            <span className="citizen-logo-text">CivicSense AI</span>
           </div>
           <button className="citizen-sidebar-close" onClick={toggleMenu}>
             <FiX />
@@ -45,18 +51,18 @@ export default function CitizenNavBar({ children }) {
             </NavLink>
           </li>
           <li>
-            <NavLink to="/citizen/profile" onClick={() => setIsMenuOpen(false)}>
-              Profile
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/citizen/raise" onClick={() => setIsMenuOpen(false)}>
+            <NavLink to="/citizen/raise-complaint" onClick={() => setIsMenuOpen(false)}>
               Raise Complaint
             </NavLink>
           </li>
           <li>
-            <NavLink to="/citizen/status" onClick={() => setIsMenuOpen(false)}>
+            <NavLink to="/citizen/complaint-status" onClick={() => setIsMenuOpen(false)}>
               Check Status
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/citizen/profile" onClick={() => setIsMenuOpen(false)}>
+              Profile
             </NavLink>
           </li>
         </ul>
@@ -64,8 +70,12 @@ export default function CitizenNavBar({ children }) {
         <div className="citizen-user-section">
           <div className="citizen-user-info">
             <FiUser className="citizen-user-icon" />
-            <span>{localStorage.getItem("citizenUsername") || "Citizen"}</span>
+            <span>{user?.displayName || user?.email || "Citizen"}</span>
           </div>
+          <button className="citizen-back-btn" onClick={handleBack}>
+            <FiArrowLeft />
+            Back
+          </button>
           <button className="citizen-logout-btn" onClick={handleLogout}>
             <FiLogOut />
             Logout

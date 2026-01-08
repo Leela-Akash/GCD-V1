@@ -99,6 +99,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  color: white;
 }
 
 .complaint-content {
@@ -115,7 +116,7 @@
   color: #cbd5e1;
 }
 
-.custom-category, .location {
+.location {
   font-size: 0.9rem;
   color: #94a3b8;
   margin: 10px 0;
@@ -123,17 +124,6 @@
   background: #0f172a;
   border-radius: 6px;
   border-left: 3px solid #64748b;
-}
-
-.audio-indicator, .media-indicator {
-  display: inline-block;
-  background: #1e40af;
-  color: #dbeafe;
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-size: 0.8rem;
-  margin: 4px 4px 4px 0;
-  font-weight: 500;
 }
 
 .complaint-footer {
@@ -145,61 +135,10 @@
   margin-bottom: 16px;
 }
 
-.submitted-time, .analyzed-time {
+.submitted-time {
   font-size: 0.8rem;
   color: #64748b;
   margin: 4px 0;
-}
-
-.ai-insight {
-  background: #0c4a6e;
-  padding: 16px;
-  border-radius: 8px;
-  border-left: 4px solid #0ea5e9;
-}
-
-.ai-insight strong {
-  color: #38bdf8;
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-}
-
-.ai-insight p {
-  margin: 0;
-  line-height: 1.5;
-  color: #e0f2fe;
-}
-
-.media-analysis {
-  background: #4c1d95;
-  padding: 16px;
-  border-radius: 8px;
-  border-left: 4px solid #8b5cf6;
-  margin-bottom: 16px;
-}
-
-.media-analysis strong {
-  color: #c4b5fd;
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-}
-
-.media-analysis p {
-  margin: 0;
-  line-height: 1.5;
-  color: #ede9fe;
-}
-
-/* Status Colors */
-.status-badge {
-  color: white;
-}
-
-/* Priority Colors */
-.priority-badge {
-  color: white;
 }
 
 /* Loading state */
@@ -212,24 +151,67 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .status-wrapper {
-    padding: 20px 15px;
+    padding: 15px 10px;
   }
   
   .status-title {
-    font-size: 2rem;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
   }
   
   .complaints-grid {
     grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .complaint-card {
+    padding: 18px;
   }
   
   .complaint-header {
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
+  }
+  
+  .complaint-header h3 {
+    font-size: 1.1rem;
   }
   
   .status-badges {
     align-self: flex-start;
+  }
+  
+  .description {
+    padding: 12px;
+    font-size: 0.95rem;
+  }
+  
+  .no-complaints {
+    padding: 30px 20px;
+    margin: 50px auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .status-title {
+    font-size: 1.5rem;
+  }
+  
+  .complaint-card {
+    padding: 15px;
+  }
+  
+  .complaint-header h3 {
+    font-size: 1rem;
+  }
+  
+  .status-badge, .priority-badge {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+  }
+  
+  .description {
+    font-size: 0.9rem;
   }
 }
 

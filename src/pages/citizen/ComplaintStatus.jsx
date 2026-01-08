@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { getUserComplaints } from "../../services/geminiService";
+import { db } from "../../services/firebase";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
 import "./ComplaintStatus.css";
 
 const ComplaintStatus = () => {
@@ -9,24 +10,36 @@ const ComplaintStatus = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    const fetchComplaints = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    
+    // Simple query without orderBy to avoid index requirement
+    const q = query(
+      collection(db, "complaints"),
+      where("userId", "==", user.uid)
+    );
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const userComplaints = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate() || new Date()
+      }));
       
-      try {
-        const userComplaints = await getUserComplaints(user.uid);
-        console.log("📋 Found complaints:", userComplaints);
-        setComplaints(userComplaints);
-      } catch (error) {
-        console.error("Failed to fetch complaints:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      // Sort in JavaScript instead of Firestore
+      userComplaints.sort((a, b) => b.createdAt - a.createdAt);
+      
+      console.log("📋 Real-time complaints update:", userComplaints.length);
+      setComplaints(userComplaints);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching complaints:", error);
+      setLoading(false);
+    });
 
-    fetchComplaints();
+    return () => unsubscribe();
   }, [user]);
 
   const getStatusColor = (status) => {
@@ -34,15 +47,6 @@ const ComplaintStatus = () => {
       case "pending": return "#f59e0b";
       case "in_progress": return "#3b82f6";
       case "resolved": return "#059669";
-      default: return "#6b7280";
-    }
-  };
-
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case "HIGH": return "#dc2626";
-      case "MEDIUM": return "#d97706";
-      case "LOW": return "#16a34a";
       default: return "#6b7280";
     }
   };
@@ -114,13 +118,6 @@ const ComplaintStatus = () => {
                     <strong>Submitted:</strong> {new Date(complaint.createdAt).toLocaleString()}
                   </p>
                 </div>
-                
-                {complaint.aiAnalysis && (
-                  <div className="ai-insight">
-                    <strong>💡 AI Analysis:</strong>
-                    <p>{complaint.aiAnalysis}</p>
-                  </div>
-                )}
               </div>
             </div>
           ))}

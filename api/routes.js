@@ -46,7 +46,12 @@ router.post('/submit-complaint', async (req, res) => {
         
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        const aiResult = JSON.parse(response.text());
+        let responseText = response.text().trim();
+        
+        // Clean up response - remove markdown code blocks
+        responseText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        
+        const aiResult = JSON.parse(responseText);
         
         // Update complaint with AI analysis
         await updateDoc(doc(db, 'complaints', docRef.id), {
