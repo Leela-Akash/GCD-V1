@@ -1,3 +1,102 @@
+import { useState, useEffect } from 'react';
+import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
+import { db } from '../../services/firebase';
+import { useNavigate } from 'react-router-dom';
+import './AdminComplaints.css';
+
 export default function ResolvedComplaints() {
-  return <h1>✅ Resolved Complaints</h1>;
+  const [complaints, setComplaints] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const q = query(
+      collection(db, 'complaints'),
+      where('status', '==', 'resolved'),
+      orderBy('createdAt', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const complaintsData = [];
+      snapshot.forEach((doc) => {
+        complaintsData.push({ id: doc.id, ...doc.data() });
+      });
+      setComplaints(complaintsData);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="admin-complaints-page">
+        <div className="loading">Loading resolved complaints...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="admin-complaints-page">
+      <div className="complaints-header">
+        <button className="back-btn" onClick={() => navigate('/admin/dashboard')}>
+          ← Back to Dashboard
+        </button>
+        <h1>✅ Resolved Complaints ({complaints.length})</h1>
+      </div>
+
+      {complaints.length === 0 ? (
+        <div className="empty-state">
+          <h3>No Resolved Complaints</h3>
+          <p>No complaints have been marked as resolved yet.</p>
+        </div>
+      ) : (
+        <div className="complaints-grid">
+          {complaints.map((complaint) => (
+            <div key={complaint.id} className="complaint-card status-resolved">
+              <div className="complaint-header">
+                <span className={`priority-badge ${complaint.priority?.toLowerCase()}`}>
+                  {complaint.priority || 'MEDIUM'}
+                </span>
+                <span className="complaint-date">
+                  {complaint.createdAt?.toDate?.()?.toLocaleDateString() || 'Unknown date'}
+                </span>
+              </div>
+              
+              <div className="complaint-content">
+                <h4>{complaint.category}</h4>
+                <p>{complaint.description}</p>
+                
+                {complaint.location && (
+                  <div className="location">
+                    📍 Lat: {complaint.location.lat}, Lng: {complaint.location.lng}
+                  </div>
+                )}
+                
+                {complaint.aiAnalysis && (
+                  <div className="ai-analysis">
+                    <strong>AI Analysis:</strong>
+                    <p>{complaint.aiAnalysis}</p>
+                  </div>
+                )}
+                
+                {complaint.resolvedAt && (
+                  <div className="resolved-info">
+                    <strong>Resolved:</strong> {complaint.resolvedAt.toDate?.()?.toLocaleDateString()}
+                  </div>
+                )}
+              </div>
+              
+              <div className="complaint-footer">
+                <span className="status-badge resolved">
+                  ✅ RESOLVED
+                </span>
+                <span className="user-id">User: {complaint.userId}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }

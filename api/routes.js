@@ -267,7 +267,7 @@ function calculateSimilarity(str1, str2) {
 }
 
 // One-time system initialization (run once in production)
-router.post('/initialize-system', async (req, res) => {
+router.get('/initialize-system', async (req, res) => {
   try {
     // Check if any admin already exists
     const adminSnapshot = await getDocs(collection(db, 'admins'));
