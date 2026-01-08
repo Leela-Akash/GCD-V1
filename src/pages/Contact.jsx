@@ -20,16 +20,34 @@ const Contact = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    setFormData({
-      name: '',
-      email: '',
-      subject: '',
-      message: ''
-    });
-    alert('Thank you for your message! We will get back to you soon.');
+    
+    try {
+      // Send email using EmailJS or your backend API
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      if (response.ok) {
+        setFormData({
+          name: '',
+          email: '',
+          subject: '',
+          message: ''
+        });
+        alert('Thank you for your message! We will get back to you soon.');
+      } else {
+        alert('Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Failed to send message. Please try again.');
+    }
   };
 
   const contactInfo = [
@@ -37,8 +55,8 @@ const Contact = () => {
       icon: '📧',
       title: 'Email Us',
       description: 'Get in touch via email',
-      contact: 'support@civicsense.ai',
-      action: 'mailto:support@civicsense.ai'
+      contact: 'civicsense.help.ai@gmail.com',
+      action: 'mailto:civicsense.help.ai@gmail.com'
     },
     {
       icon: '📞',
@@ -52,7 +70,7 @@ const Contact = () => {
       title: 'Visit Us',
       description: 'Our headquarters',
       contact: 'Vaddeswaram,Vijayawada, Andhra Pradesh, India',
-      action: 'https://maps.google.com'
+      action: 'https://maps.app.goo.gl/5mxy6qkg6ie2wJJc8'
     },
     {
       icon: '💬',

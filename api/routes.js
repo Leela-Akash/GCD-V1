@@ -133,4 +133,35 @@ router.get('/complaints/:userId', async (req, res) => {
   }
 });
 
+// Contact form submission
+router.post('/contact', async (req, res) => {
+  try {
+    const { name, email, subject, message } = req.body;
+    
+    console.log('Contact form submission:', { name, email, subject });
+    
+    // Store in Firestore
+    await addDoc(collection(db, 'contacts'), {
+      name,
+      email,
+      subject,
+      message,
+      createdAt: new Date(),
+      status: 'new'
+    });
+    
+    // TODO: Send email notification to admin
+    // You can integrate with SendGrid, Nodemailer, or other email services
+    
+    res.json({ 
+      success: true, 
+      message: 'Contact form submitted successfully'
+    });
+    
+  } catch (error) {
+    console.error('Error submitting contact form:', error);
+    res.status(500).json({ error: 'Failed to submit contact form' });
+  }
+});
+
 export default router;

@@ -104,7 +104,7 @@ const Footer = () => {
             </h4>
             <div style={{ marginBottom: '16px' }}>
               <p style={{ color: 'rgba(255, 255, 255, 0.8)', margin: '4px 0' }}>
-                📧 support@civicsense.ai
+                📧 civicsense.help.ai@gmail.com
               </p>
               <p style={{ color: 'rgba(255, 255, 255, 0.8)', margin: '4px 0' }}>
                 📞 8885277944

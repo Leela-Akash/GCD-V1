@@ -11,25 +11,38 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Real-time listener for all complaints
     const q = query(
       collection(db, "complaints"),
       orderBy("createdAt", "desc")
     );
 
-    const unsub = onSnapshot(q, snap => {
-      const allComplaints = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const allComplaints = snapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate() || new Date()
+      }));
       setComplaints(allComplaints);
+      setLoading(false);
+      console.log('📊 Real-time admin dashboard update:', allComplaints.length, 'complaints');
+    }, (error) => {
+      console.error('Error fetching complaints:', error);
       setLoading(false);
     });
 
-    return () => unsub();
+    return () => unsubscribe();
   }, []);
   
   const stats = {
     total: complaints.length,
     high: complaints.filter(c => c.priority === "HIGH" || c.priority === "CRITICAL").length,
-    pending: complaints.filter(c => c.status === "submitted" || c.status === "analyzed").length,
+    pending: complaints.filter(c => c.status === "pending" || c.status === "submitted" || c.status === "analyzed").length,
     resolved: complaints.filter(c => c.status === "resolved").length
+  };
+
+  const handleBack = () => {
+    navigate("/");
   };
 
   if (loading) {
@@ -48,7 +61,7 @@ export default function AdminDashboard() {
       title: "Total Complaints",
       value: stats.total,
       icon: "📋",
-      gradient: "linear-gradient(135deg, #4285F4, #34A853)",
+      gradient: "linear-gradient(135deg, #1e3a8a, #3b82f6)",
       description: "All submitted complaints",
       onClick: () => navigate("/admin/manage-complaints")
     },
@@ -56,7 +69,7 @@ export default function AdminDashboard() {
       title: "High Priority",
       value: stats.high,
       icon: "🚨",
-      gradient: "linear-gradient(135deg, #EA4335, #FBBC04)",
+      gradient: "linear-gradient(135deg, #1e40af, #2563eb)",
       description: "Critical & high priority issues",
       onClick: () => navigate("/admin/high-priority")
     },
@@ -64,7 +77,7 @@ export default function AdminDashboard() {
       title: "Pending Review",
       value: stats.pending,
       icon: "⏳",
-      gradient: "linear-gradient(135deg, #FBBC04, #FF6D01)",
+      gradient: "linear-gradient(135deg, #1d4ed8, #3b82f6)",
       description: "Awaiting admin action",
       onClick: () => navigate("/admin/pending-complaints")
     },
@@ -72,7 +85,7 @@ export default function AdminDashboard() {
       title: "Resolved",
       value: stats.resolved,
       icon: "✅",
-      gradient: "linear-gradient(135deg, #34A853, #4285F4)",
+      gradient: "linear-gradient(135deg, #1e40af, #60a5fa)",
       description: "Successfully completed",
       onClick: () => navigate("/admin/resolved-complaints")
     }
@@ -82,17 +95,25 @@ export default function AdminDashboard() {
 
   return (
     <div className="admin-dashboard">
+      <button className="back-button" onClick={handleBack}>
+        ← Back to Home
+      </button>
+      
       <div className="dashboard-header">
         <h1 className="dashboard-title">Admin Dashboard</h1>
         <p className="dashboard-subtitle">
           CivicSense AI - Smart Complaint Management System
         </p>
+        <div className="live-indicator">
+          <span className="live-dot"></span>
+          Live Updates
+        </div>
       </div>
 
       <AdminMagicBento 
         cards={bentoCards}
         enableStars={true}
-        glowColor="66, 133, 244"
+        glowColor="59, 130, 246"
       />
 
       <div className="dashboard-content">
@@ -112,7 +133,7 @@ export default function AdminDashboard() {
                         {complaint.priority || 'PENDING'}
                       </span>
                       <span className="complaint-time">
-                        {complaint.createdAt?.toDate?.()?.toLocaleDateString() || 'Just now'}
+                        {complaint.createdAt?.toLocaleDateString() || 'Just now'}
                       </span>
                     </div>
                   </div>

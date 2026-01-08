@@ -66,7 +66,7 @@ const About = () => {
       handle: '@bhargava',
       borderColor: '#4285F4',
       gradient: 'linear-gradient(145deg, #4285F4, #000)',
-      url: '#'
+      url: 'https://www.linkedin.com/in/godavarthibhargava/'
     },
     {
       name: "LEELA AKASH",
@@ -77,7 +77,7 @@ const About = () => {
       handle: '@leelaakash',
       borderColor: '#34A853',
       gradient: 'linear-gradient(210deg, #34A853, #000)',
-      url: '#'
+      url: 'https://www.linkedin.com/in/leela-akash-maridi/'
     },
     {
       name: "ARUN ADITHYA",
@@ -88,7 +88,7 @@ const About = () => {
       handle: '@arunadithya',
       borderColor: '#AF99F6',
       gradient: 'linear-gradient(165deg, #AF99F6, #000)',
-      url: '#'
+      url: 'https://www.linkedin.com/in/adithya-kasiraju-a9a2b62b4/'
     }
   ];
 
@@ -187,8 +187,10 @@ const About = () => {
                     flex: "1",
                     display: "flex",
                     justifyContent: "center",
-                    alignItems: "center"
+                    alignItems: "center",
+                    cursor: "pointer"
                   }}
+                  onClick={() => window.open(member.url, '_blank')}
                 >
                   <ChromaGrid
                     items={[member]}

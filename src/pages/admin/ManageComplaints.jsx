@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { db } from "../../services/firebase";
 import { collection, onSnapshot, query, orderBy, doc, updateDoc } from "firebase/firestore";
 import "./AdminComponents.css";
 
 export default function ManageComplaints() {
+  const navigate = useNavigate();
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -16,13 +18,22 @@ export default function ManageComplaints() {
     );
 
     const unsub = onSnapshot(q, snap => {
-      const allComplaints = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const allComplaints = snap.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate() || new Date()
+      }));
       setComplaints(allComplaints);
       setLoading(false);
+      console.log('📋 Real-time manage complaints update:', allComplaints.length);
     });
 
     return () => unsub();
   }, []);
+
+  const handleBack = () => {
+    navigate("/admin/dashboard");
+  };
 
   const updateComplaintStatus = async (complaintId, newStatus) => {
     try {
@@ -81,9 +92,17 @@ export default function ManageComplaints() {
 
   return (
     <div className="manage-complaints">
+      <button className="back-button" onClick={handleBack}>
+        ← Back to Dashboard
+      </button>
+      
       <div className="page-header">
         <h1 className="page-title">Manage Complaints</h1>
         <p className="page-subtitle">Review and manage all citizen complaints</p>
+        <div className="live-indicator">
+          <span className="live-dot"></span>
+          Live Updates
+        </div>
       </div>
 
       <div className="filters-section">
