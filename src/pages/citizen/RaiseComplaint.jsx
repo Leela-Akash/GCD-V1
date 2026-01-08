@@ -118,14 +118,17 @@ const RaiseComplaint = () => {
 
   /* VOICE */
   const startVoiceRecording = async () => {
-    // Try browser Speech Recognition first
+    // Prioritize browser Speech Recognition for better accuracy
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const recognition = new SpeechRecognition();
       
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = language; // Use selected language
+      recognition.continuous = false; // Changed to false for better control
+      recognition.interimResults = false; // Changed to false to avoid repetition
+      recognition.lang = language;
+      recognition.maxAlternatives = 1;
+      
+      let finalTranscript = '';
       
       recognition.onstart = () => {
         setAudioRecording(true);
@@ -133,20 +136,30 @@ const RaiseComplaint = () => {
       };
       
       recognition.onresult = (event) => {
-        let transcript = '';
         for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          }
         }
         
-        // Update description with transcribed text
-        if (transcript.trim()) {
-          setDescription(prev => prev ? `${prev} ${transcript}` : transcript);
+        // Clean and update description
+        if (finalTranscript.trim()) {
+          const cleanedText = cleanTranscriptText(finalTranscript.trim());
+          setDescription(prev => {
+            const newText = prev ? `${prev} ${cleanedText}` : cleanedText;
+            return newText.length > 500 ? newText.substring(0, 500) : newText;
+          });
         }
       };
       
       recognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
         setAudioRecording(false);
+        if (event.error === 'no-speech') {
+          alert('No speech detected. Please try again.');
+        } else if (event.error === 'network') {
+          alert('Network error. Please check your connection.');
+        }
       };
       
       recognition.onend = () => {
@@ -157,34 +170,103 @@ const RaiseComplaint = () => {
       recognition.start();
       
     } else {
-      // Fallback to audio recording
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
+      // Fallback to audio recording with improved Gemini transcription
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const recorder = new MediaRecorder(stream, {
+          mimeType: 'audio/webm;codecs=opus'
+        });
 
-      audioRecorderRef.current = recorder;
-      audioChunksRef.current = [];
+        audioRecorderRef.current = recorder;
+        audioChunksRef.current = [];
 
-      recorder.ondataavailable = e => audioChunksRef.current.push(e.data);
-      recorder.onstop = () => {
-        const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-        setVoiceBlob(blob);
-        stream.getTracks().forEach(t => t.stop());
-      };
+        recorder.ondataavailable = e => {
+          if (e.data.size > 0) {
+            audioChunksRef.current.push(e.data);
+          }
+        };
+        
+        recorder.onstop = async () => {
+          const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          
+          // Convert to base64 and transcribe
+          try {
+            const base64Audio = await blobToBase64(blob);
+            const response = await fetch('/api/transcribe-audio', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ audioData: base64Audio })
+            });
+            
+            const result = await response.json();
+            if (result.success && result.transcription) {
+              const cleanedText = cleanTranscriptText(result.transcription);
+              setDescription(prev => {
+                const newText = prev ? `${prev} ${cleanedText}` : cleanedText;
+                return newText.length > 500 ? newText.substring(0, 500) : newText;
+              });
+            }
+          } catch (error) {
+            console.error('Transcription failed:', error);
+            alert('Voice transcription failed. Please type your complaint.');
+          }
+          
+          stream.getTracks().forEach(t => t.stop());
+        };
 
-      recorder.start();
-      setAudioRecording(true);
+        recorder.start();
+        setAudioRecording(true);
+        
+        // Auto-stop after 30 seconds to prevent long recordings
+        setTimeout(() => {
+          if (audioRecorderRef.current && audioRecorderRef.current.state === 'recording') {
+            audioRecorderRef.current.stop();
+          }
+        }, 30000);
+        
+      } catch (error) {
+        console.error('Microphone access failed:', error);
+        alert('Microphone access denied. Please allow microphone access and try again.');
+      }
     }
   };
 
   const stopVoiceRecording = () => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      // Stop speech recognition (it stops automatically)
       setAudioRecording(false);
-    } else {
-      // Stop audio recording
+    } else if (audioRecorderRef.current && audioRecorderRef.current.state === 'recording') {
       audioRecorderRef.current.stop();
       setAudioRecording(false);
     }
+  };
+  
+  // Helper function to clean transcript text
+  const cleanTranscriptText = (text) => {
+    if (!text) return '';
+    
+    // Remove excessive repetition
+    const words = text.split(' ');
+    const cleanWords = [];
+    let lastWord = '';
+    let repeatCount = 0;
+    
+    for (const word of words) {
+      const cleanWord = word.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const lastCleanWord = lastWord.toLowerCase().replace(/[^a-z0-9]/g, '');
+      
+      if (cleanWord === lastCleanWord && cleanWord.length > 2) {
+        repeatCount++;
+        if (repeatCount < 2) {
+          cleanWords.push(word);
+        }
+      } else {
+        cleanWords.push(word);
+        repeatCount = 0;
+      }
+      lastWord = word;
+    }
+    
+    return cleanWords.join(' ').trim();
   };
 
   /* LOCATION */

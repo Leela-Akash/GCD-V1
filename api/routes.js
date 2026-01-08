@@ -164,4 +164,106 @@ router.post('/contact', async (req, res) => {
   }
 });
 
+// Audio transcription endpoint
+router.post('/transcribe-audio', async (req, res) => {
+  try {
+    const { audioData } = req.body;
+    
+    if (!audioData) {
+      return res.status(400).json({ error: 'Audio data is required' });
+    }
+    
+    console.log('🎙️ Transcribing audio with Gemini...');
+    
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    
+    const result = await model.generateContent([
+      {
+        inlineData: {
+          mimeType: 'audio/webm',
+          data: audioData
+        }
+      },
+      {
+        text: 'Transcribe this audio to text accurately. Rules: 1) Return only clean transcribed text 2) Remove repetitive words 3) Fix grammar 4) If unclear, return "Audio unclear" 5) Maximum 200 words'
+      }
+    ]);
+    
+    const response = await result.response;
+    let transcribedText = response.text().trim();
+    
+    // Clean repetitive text
+    transcribedText = cleanRepetitiveText(transcribedText);
+    
+    console.log('🎙️ Transcription result:', transcribedText);
+    
+    res.json({ 
+      success: true, 
+      transcription: transcribedText 
+    });
+    
+  } catch (error) {
+    console.error('Audio transcription error:', error);
+    res.status(500).json({ 
+      error: 'Failed to transcribe audio',
+      transcription: 'Audio transcription failed'
+    });
+  }
+});
+
+// Helper function to clean repetitive text
+function cleanRepetitiveText(text) {
+  if (!text || text.length < 10) return text;
+  
+  // Split into words and remove excessive repetition
+  const words = text.split(' ');
+  const cleanWords = [];
+  let lastWord = '';
+  let repeatCount = 0;
+  
+  for (const word of words) {
+    if (word.toLowerCase() === lastWord.toLowerCase()) {
+      repeatCount++;
+      if (repeatCount < 2) { // Allow max 1 repetition
+        cleanWords.push(word);
+      }
+    } else {
+      cleanWords.push(word);
+      repeatCount = 0;
+    }
+    lastWord = word.toLowerCase();
+  }
+  
+  let cleaned = cleanWords.join(' ');
+  
+  // Remove repetitive phrases
+  const sentences = cleaned.split(/[.!?]+/);
+  const uniqueSentences = [];
+  
+  for (const sentence of sentences) {
+    const trimmed = sentence.trim();
+    if (trimmed && trimmed.length > 3) {
+      // Check if this sentence is too similar to existing ones
+      const isDuplicate = uniqueSentences.some(existing => {
+        const similarity = calculateSimilarity(trimmed.toLowerCase(), existing.toLowerCase());
+        return similarity > 0.7; // 70% similarity threshold
+      });
+      
+      if (!isDuplicate) {
+        uniqueSentences.push(trimmed);
+      }
+    }
+  }
+  
+  return uniqueSentences.join('. ').trim();
+}
+
+// Calculate text similarity
+function calculateSimilarity(str1, str2) {
+  const words1 = str1.split(' ');
+  const words2 = str2.split(' ');
+  const commonWords = words1.filter(word => words2.includes(word));
+  return commonWords.length / Math.max(words1.length, words2.length);
+}
+
 export default router;
