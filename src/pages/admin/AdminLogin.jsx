@@ -23,8 +23,16 @@ const AdminLogin = () => {
     }
   };
 
+  const handleBack = () => {
+    navigate("/");
+  };
+
   return (
     <div className="admin-login-page">
+      <button className="back-button" onClick={handleBack}>
+        ← Back to Home
+      </button>
+      
       <ElectricBorder
         color="#AF99F6"
         speed={1.2}

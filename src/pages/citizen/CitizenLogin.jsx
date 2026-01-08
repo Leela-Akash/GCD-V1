@@ -34,11 +34,19 @@ const CitizenLogin = () => {
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
+    
+    if (!email.trim() || !password.trim()) {
+      setError("Please enter both email and password.");
+      return;
+    }
+    
     try {
       setLoading(true);
       setError("");
       
+      console.log("Attempting login with:", email);
       const user = await signInWithEmail(email, password);
+      console.log("Login successful:", user);
       
       localStorage.setItem("citizenLoggedIn", "true");
       localStorage.setItem("citizenUsername", user.displayName || user.email);
@@ -48,7 +56,8 @@ const CitizenLogin = () => {
       
       navigate("/citizen/dashboard");
     } catch (error) {
-      setError("Invalid email or password. Please try again.");
+      console.error("Login error:", error);
+      setError(error.message || "Invalid email or password. Please try again.");
     } finally {
       setLoading(false);
     }

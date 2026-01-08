@@ -1,9 +1,31 @@
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(175, 153, 246, 0.2);
+  color: #AF99F6;
+  border: 1px solid #AF99F6;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.back-button:hover {
+  background: #AF99F6;
+  color: #000;
+  transform: translateY(-2px);
+}
+
 .admin-login-page {
   min-height: 100vh;
   background: #050508;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 /* 🔥 Bigger electric wrapper */

@@ -37,6 +37,16 @@ const CitizenRegister = () => {
   const handleEmailRegister = async (e) => {
     e.preventDefault();
     
+    if (!name.trim()) {
+      setError("Please enter your full name.");
+      return;
+    }
+    
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      return;
+    }
+    
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -46,17 +56,20 @@ const CitizenRegister = () => {
       setLoading(true);
       setError("");
       
+      console.log("Attempting registration with:", { email, name });
       const user = await registerWithEmail(email, password, name);
+      console.log("Registration successful:", user);
       
       localStorage.setItem("citizenLoggedIn", "true");
-      localStorage.setItem("citizenUsername", user.displayName || user.email);
+      localStorage.setItem("citizenUsername", user.displayName || name);
       localStorage.setItem("citizenEmail", user.email);
       sessionStorage.setItem("citizenLoggedIn", "true");
-      sessionStorage.setItem("citizenUsername", user.displayName || user.email);
+      sessionStorage.setItem("citizenUsername", user.displayName || name);
       
       navigate("/citizen/dashboard");
     } catch (error) {
-      setError("Registration failed. Email may already be in use.");
+      console.error("Registration error:", error);
+      setError(error.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
