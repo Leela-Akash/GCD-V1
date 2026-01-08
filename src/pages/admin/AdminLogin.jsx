@@ -4,22 +4,56 @@ import ElectricBorder from "../../components/effects/ElectricBorder";
 import "./AdminLogin.css";
 
 const AdminLogin = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
-    // Simple admin authentication
-    if (username === "admin" && password === "admin") {
-      localStorage.setItem("adminLoggedIn", "true");
-      sessionStorage.setItem("adminLoggedIn", "true");
-      navigate("/admin/dashboard");
-    } else {
-      setError("Invalid credentials. Use admin/admin");
+    try {
+      const response = await fetch('/api/admin-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email, 
+          password, 
+          action: 'login' 
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Store admin session
+        localStorage.setItem("adminLoggedIn", "true");
+        localStorage.setItem("adminData", JSON.stringify(data.admin));
+        sessionStorage.setItem("adminLoggedIn", "true");
+        
+        // Log admin activity
+        await fetch('/api/admin-activity', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            adminId: data.admin.id,
+            action: 'login',
+            details: 'Admin logged in successfully'
+          })
+        });
+        
+        navigate("/admin/dashboard");
+      } else {
+        setError(data.error || "Login failed");
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,10 +81,10 @@ const AdminLogin = () => {
 
           <form onSubmit={handleSubmit}>
             <input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
+              type="email"
+              placeholder="Admin Email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
               required
             />
 
@@ -62,8 +96,14 @@ const AdminLogin = () => {
               required
             />
 
-            <button type="submit">Login</button>
+            <button type="submit" disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
+            </button>
           </form>
+          
+          <p className="demo-note">
+            Demo: admin@civicsense.ai / admin123
+          </p>
         </div>
       </ElectricBorder>
     </div>

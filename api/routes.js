@@ -266,4 +266,151 @@ function calculateSimilarity(str1, str2) {
   return commonWords.length / Math.max(words1.length, words2.length);
 }
 
+// One-time system initialization (run once in production)
+router.post('/initialize-system', async (req, res) => {
+  try {
+    // Check if any admin already exists
+    const adminSnapshot = await getDocs(collection(db, 'admins'));
+    
+    if (adminSnapshot.size > 0) {
+      return res.status(400).json({ 
+        error: 'System already initialized',
+        adminCount: adminSnapshot.size 
+      });
+    }
+    
+    // Create first admin account
+    const adminData = {
+      email: 'admin@civicsense.ai',
+      password: 'admin123', // Change this in production
+      name: 'System Administrator',
+      role: 'super_admin',
+      createdAt: new Date(),
+      lastLogin: null,
+      loginCount: 0,
+      status: 'active',
+      permissions: [
+        'view_complaints',
+        'manage_complaints', 
+        'view_analytics',
+        'manage_users',
+        'system_settings'
+      ]
+    };
+    
+    const docRef = await addDoc(collection(db, 'admins'), adminData);
+    
+    console.log('✅ Production admin initialized:', docRef.id);
+    
+    res.json({
+      success: true,
+      message: 'System initialized successfully',
+      adminId: docRef.id,
+      credentials: {
+        email: 'admin@civicsense.ai',
+        password: 'admin123'
+      }
+    });
+    
+  } catch (error) {
+    console.error('System initialization error:', error);
+    res.status(500).json({ error: 'Failed to initialize system' });
+  }
+});
+
+// Admin registration/login endpoint
+router.post('/admin-auth', async (req, res) => {
+  try {
+    const { email, password, action } = req.body;
+    
+    if (action === 'login') {
+      // Check admin credentials
+      const adminQuery = query(
+        collection(db, 'admins'),
+        where('email', '==', email)
+      );
+      
+      const adminSnapshot = await getDocs(adminQuery);
+      
+      if (adminSnapshot.empty) {
+        return res.status(401).json({ error: 'Admin not found' });
+      }
+      
+      const adminDoc = adminSnapshot.docs[0];
+      const adminData = adminDoc.data();
+      
+      // Simple password check (in production, use proper hashing)
+      if (adminData.password !== password) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+      
+      // Update last login
+      await updateDoc(doc(db, 'admins', adminDoc.id), {
+        lastLogin: new Date(),
+        loginCount: (adminData.loginCount || 0) + 1
+      });
+      
+      res.json({
+        success: true,
+        admin: {
+          id: adminDoc.id,
+          email: adminData.email,
+          name: adminData.name,
+          role: adminData.role
+        }
+      });
+      
+    } else if (action === 'register') {
+      // Create new admin (only if authorized)
+      const newAdmin = {
+        email,
+        password, // In production, hash this
+        name: req.body.name || 'Admin',
+        role: 'admin',
+        createdAt: new Date(),
+        lastLogin: new Date(),
+        loginCount: 1,
+        status: 'active'
+      };
+      
+      const docRef = await addDoc(collection(db, 'admins'), newAdmin);
+      
+      res.json({
+        success: true,
+        admin: {
+          id: docRef.id,
+          email: newAdmin.email,
+          name: newAdmin.name,
+          role: newAdmin.role
+        }
+      });
+    }
+    
+  } catch (error) {
+    console.error('Admin auth error:', error);
+    res.status(500).json({ error: 'Authentication failed' });
+  }
+});
+
+// Admin activity logging
+router.post('/admin-activity', async (req, res) => {
+  try {
+    const { adminId, action, details } = req.body;
+    
+    await addDoc(collection(db, 'admin_activities'), {
+      adminId,
+      action,
+      details,
+      timestamp: new Date(),
+      ip: req.ip || 'unknown'
+    });
+    
+    res.json({ success: true });
+    
+  } catch (error) {
+    console.error('Activity logging error:', error);
+    res.status(500).json({ error: 'Failed to log activity' });
+  }
+});
+
 export default router;
