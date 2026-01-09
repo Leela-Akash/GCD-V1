@@ -307,6 +307,12 @@
     padding: 1rem;
   }
   
+  .back-button {
+    position: static;
+    margin-bottom: 1rem;
+    width: fit-content;
+  }
+  
   .dashboard-title {
     font-size: 2rem;
   }
@@ -348,6 +354,12 @@
   .complaint-item {
     padding: 1rem;
   }
+  
+  .complaint-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -360,11 +372,13 @@
   }
   
   .dashboard-title {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
+    line-height: 1.2;
   }
   
   .dashboard-subtitle {
     font-size: 0.9rem;
+    padding: 0 0.5rem;
   }
   
   .stat-card {
@@ -398,5 +412,10 @@
   .action-btn {
     padding: 0.875rem 1.25rem;
     font-size: 0.95rem;
+  }
+  
+  .back-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
   }
 }
