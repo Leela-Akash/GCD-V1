@@ -286,7 +286,13 @@ const RaiseComplaint = () => {
     }
 
     try {
-      // Submit complaint with all data
+      // Show loading state
+      const submitBtn = e.target.querySelector('.submit-btn');
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Submitting...';
+      submitBtn.disabled = true;
+
+      // Submit complaint first (fast)
       const result = await submitComplaint({
         description: description.trim(),
         category,
@@ -295,16 +301,13 @@ const RaiseComplaint = () => {
         userId: user?.uid || "anonymous"
       });
 
-      // Upload media files and analyze them
+      // Handle media upload in background if files exist
       if (files.length > 0) {
-        const mediaUrls = await uploadMedia(files, result.id);
-        await uploadComplaintMedia(result.id, mediaUrls);
-        
-        // Trigger media analysis
-        await analyzeComplaintMedia(result.id, mediaUrls);
+        // Don't wait for media upload - do it in background
+        uploadMediaInBackground(result.id, files);
       }
 
-      // Show success message
+      // Show success immediately
       alert(result.message || "Complaint submitted successfully");
       
       // Reset form
@@ -315,9 +318,37 @@ const RaiseComplaint = () => {
       setLocation(null);
       setVoiceBlob(null);
 
+      // Reset button
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+
     } catch (error) {
       console.error(error);
       alert("Failed to submit complaint. Please try again.");
+      
+      // Reset button on error
+      const submitBtn = e.target.querySelector('.submit-btn');
+      submitBtn.textContent = 'Submit Complaint';
+      submitBtn.disabled = false;
+    }
+  };
+
+  // Background media upload function
+  const uploadMediaInBackground = async (complaintId, mediaFiles) => {
+    try {
+      console.log('📸 Uploading media in background...');
+      const mediaUrls = await uploadMedia(mediaFiles, complaintId);
+      await uploadComplaintMedia(complaintId, mediaUrls);
+      
+      // Optional: Trigger media analysis in background
+      analyzeComplaintMedia(complaintId, mediaUrls).catch(err => 
+        console.log('Media analysis failed (non-critical):', err)
+      );
+      
+      console.log('✅ Media upload completed in background');
+    } catch (error) {
+      console.error('Background media upload failed:', error);
+      // Don't show error to user since complaint was already submitted
     }
   };
 

@@ -92,13 +92,16 @@ export default function ManageComplaints() {
 
   return (
     <div className="manage-complaints">
-      <button className="back-button" onClick={handleBack}>
-        ← Back to Dashboard
-      </button>
-      
-      <div className="page-header">
-        <h1 className="page-title">Manage Complaints</h1>
-        <p className="page-subtitle">Review and manage all citizen complaints</p>
+      <div className="header-container">
+        <button className="back-button" onClick={handleBack}>
+          ← Back to Dashboard
+        </button>
+        
+        <div className="header-center">
+          <h1 className="page-title">Manage Complaints</h1>
+          <p className="page-subtitle">Review and manage all citizen complaints</p>
+        </div>
+        
         <div className="live-indicator">
           <span className="live-dot"></span>
           Live Updates
